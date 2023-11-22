@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 
 const sendVerificationEmail = async (email, verificationCode) => {
     const transporter = nodemailer.createTransport({
-        // Example SMTP configuration (use your email provider's details)
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",

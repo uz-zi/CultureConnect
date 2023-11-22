@@ -7,7 +7,7 @@ const checkDuplicate = (req, res, next) => {
       }
     }).then(rs => {
       if (rs) {
-        res.status(400).send({message: "Failed Username is already exist"});
+        res.status(400).send({message: "User already exist"});
         return;
       }
       user.findOne({
@@ -16,7 +16,7 @@ const checkDuplicate = (req, res, next) => {
         }
       }).then(rs => {
         if (rs) {
-          res.status(400).send({message: "Failed Email is already exist"});
+          res.status(400).send({message: "User already exist"});
           return;
         }
 

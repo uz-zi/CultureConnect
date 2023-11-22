@@ -15,14 +15,15 @@ const signUpUser = async (req, res) => {
         const verificationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
         
         temporaryUsers[verificationCode] = {
-            UserID: req.body.id,
-            Name: req.body.name,
-            Email: req.body.email,
-            Password: req.body.pass
+          FirstName: req.body.fname,
+          LastName: req.body.lname,
+          Name: req.body.name,
+          Email: req.body.email,
+          Password: req.body.pass,
+          PhoneNumber: req.body.pnum
         };
 
         await sendVerificationEmail(req.body.email, verificationCode);
-
         res.send('Verification code sent to email.');
     } catch (error) {
         console.error("Error in signUpUser: ", error);
@@ -58,6 +59,7 @@ const signInUser =async (req, res) => {
       await sequelize
       .sync()
       .then(async() => {
+        console.log(req.body.pass).pause();
         await User.findOne({
           where: {
             Password: req.body.pass,
