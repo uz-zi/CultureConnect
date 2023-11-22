@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 
-const sequelize = new Sequelize("cultureConnect", "postgres", "123", {
+const sequelize = new Sequelize("CultureConnect", "postgres", "123", {
   host: "localhost",
   dialect: "postgres",
 });

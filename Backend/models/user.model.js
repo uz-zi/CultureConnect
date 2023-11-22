@@ -2,11 +2,19 @@ const sequelize = require("../config")
 const { Sequelize, DataTypes } = require("sequelize");
 
 const User = sequelize.define("users", {
-    UserID: {
-      type: DataTypes.INTEGER,
+  Name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  } , 
+  FirstName: {
+      type: DataTypes.STRING,
       allowNull: false
     },
-    Name: {
+    LastName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    PhoneNumber: {
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -19,7 +27,6 @@ const User = sequelize.define("users", {
         allowNull: false
     },
     verificationCode: DataTypes.STRING,
-    verificationCodeExpiry: DataTypes.DATE,
     isVerified: DataTypes.BOOLEAN
  });
 
