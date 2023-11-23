@@ -23,6 +23,8 @@ const signUpUser = async (req, res) => {
           PhoneNumber: req.body.pnum
         };
 
+        console.log(temporaryUsers);
+
         await sendVerificationEmail(req.body.email, verificationCode);
         res.send('Verification code sent to email.');
     } catch (error) {
@@ -33,8 +35,11 @@ const signUpUser = async (req, res) => {
 
 const verifyUser = async (req, res) => {
     try {
+      console.log('Received verification code:', req.body.verificationCode);
         const { verificationCode } = req.body;
+        console.log(temporaryUsers);
         const tempUser = temporaryUsers[verificationCode];
+        console.log(tempUser);
 
         if (!tempUser) {
             return res.status(400).send('Invalid verification code');
@@ -59,7 +64,7 @@ const signInUser =async (req, res) => {
       await sequelize
       .sync()
       .then(async() => {
-        console.log(req.body.pass).pause();
+        console.log(req.body);
         await User.findOne({
           where: {
             Password: req.body.pass,
@@ -70,7 +75,7 @@ const signInUser =async (req, res) => {
             if(!data)
             {
               console.error("Failed to sign in : ", error);
-              res.send(new errorHandler("login failed " , 404))
+              res.send(new errorHandler("Invalid Credentials!" , 404))
             }
             else{
             console.log(data);

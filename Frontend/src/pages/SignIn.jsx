@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from './../axios'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import EmailVerification from "./EmailVerification";
 import useModal from "../Hooks/useModal";
 
@@ -29,12 +29,12 @@ function signin() {
     try {
       const response = await axios.post('/user/signUpUser', 
       {
-        name,
-        firstname,
-        lastname,
-        email,
-        phone,
-        password
+        name: name,
+        fname: firstname,
+        lname: lastname,
+        email: email,
+        pnum: phone,
+        pass: password
       });
   
       console.log(response);
@@ -43,33 +43,29 @@ function signin() {
       {
         toggleModal();
       }
-      else if(response.data.message === "User already exist"){
-        alert('user already exists');
-      }
     } catch (error) {
       console.log(error);
-      alert(error.data);
+      alert(error.response.data.message);
     }
   };
 
-
   const handleLogin = async () =>{
     try {
-      const response = await axios.get('/user/signIn', 
+      const response = await axios.post('/user/signIn', 
         {
-          email,
+          email: email,
           pass: password
         }
       );
   
       console.log(response);
   
-      // if(response.data === "")
-      // {
-      //   toggleModal();
-      // }
-      if(response.data.message === "User already exist"){
-        alert('user already exists');
+      if(response.status === 200)
+      {
+        navigate('/user/Dashboard');
+      }
+      if(response.status === 404){
+        alert('Invalid Credentials!');
       }
     } catch (error) {
       console.log(error);
@@ -91,7 +87,7 @@ function signin() {
 
  
   return (
-    <div className="flex overflow-hidden relative h-screen">
+    <div className="flex overflow-hidden relative min-h-screen">
       <div
         id="SC"
         className={`flex-1 bg-gray-200 justify-center items-center duration-700 hidden md:flex transition-all ease-in-out ${
@@ -108,11 +104,11 @@ function signin() {
       </div>
       <div
         id="LSF"
-        className={`flex-1 flex justify-center items-center duration-700 transition-all ease-in-out ${
+        className={`flex-1 flex justify-center items-center duration-700 transition-all ease-in-out${
           isLoginForm ? "left-0" : "right-0"
         } ${isLoginForm ? "-translte-x-0" : ""}`}
       >
-        <div className="w-[400px] bgForm px-6 py-5 rounded shadow-md flex flex-col">
+        <div className="w-[400px] bgForm px-6 py-5 rounded-xl shadow-md flex flex-col my-5">
           <h2 className="text-center text-2xl py-8 font-bold">
             {isLoginForm ? "Login" : "SignUp"}
           </h2>
@@ -145,10 +141,11 @@ function signin() {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
+                 
                 </>
               ) : (
                 <>
-                  <div className="flex flex-col m-3">
+                  <div className="flex flex-col mt-[20px] mb-[20px]">
                     <label htmlFor="firstname">First Name</label>
                     <input
                       className="px-2 py-1 m-1 outline-none rounded-md"
@@ -227,7 +224,7 @@ function signin() {
                 <>
                   <button
                     type="submit"
-                    className="bg-blue-500 hover:bg-blue-700 duration-200 mx-auto text-lg px-5 py-1 border-2 rounded-3xl text-white my-1"
+                    className="bg-green-500 hover:bg-green-700 duration-200 mx-auto text-lg px-5 py-1 border-2 rounded-3xl text-white my-1"
                   >
                     LogIn
                   </button>
@@ -241,6 +238,15 @@ function signin() {
                     >
                       SignUp
                     </button>
+                    <div className="flex p-3 justify-center items-center">
+                <Link
+                  to="#"
+                  className="text-blue-500 hover:text-blue-700 underline p-1"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+                   
                   </p>
                 </>
               ) : (

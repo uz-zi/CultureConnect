@@ -1,6 +1,9 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom"; 
-import SignIn from "./pages/SignIn"
+import SignIn from "./pages/SignIn";
 import EmailVerification from "./pages/EmailVerification";
+import ConfirmEmail from "./pages/ForgotPass/ConfirmEmail";
+import Dashboard from "./pages/user/Dashboard";
+
 function App() {
   
 
@@ -8,8 +11,10 @@ function App() {
     <>
       <BrowserRouter>
       <Routes>
-        <Route path="/signin" element={<SignIn/>}></Route>
+        <Route path="/user/signin" element={<SignIn/>}></Route>
         <Route path="/emailverification" element={<EmailVerification/>}></Route>
+        <Route path="/confirmemail" element={<ConfirmEmail/>}></Route>
+        <Route path="/user/dashboard" element={<Dashboard/>}></Route>
       </Routes>
       </BrowserRouter>
     </>
