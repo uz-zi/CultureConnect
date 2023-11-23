@@ -22,7 +22,7 @@ const Modal = ({ isOpen, onClose, position = "center",children }) => {
       ></div>
       <div className={`px-4 py-8 ${getModalPosition()}`}>
         <div
-          className={`relative w-full max-w-lg p-4 mx-auto bg-white rounded-md shadow-lg dark:bg-gray-700 dark:text-gray-400 ${
+          className={`relative w-full max-w-lg p-4 mx-auto bg-white rounded-xl shadow-lg dark:bg-gray-700 dark:text-gray-400 ${
             isOpen ? "animate-scale-in" : ""
           }`}
         >

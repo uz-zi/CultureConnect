@@ -5,7 +5,7 @@ const fuction = require('../controllers/user.controller')
 const {isUser} = require('../midlleware/jwtauthenticate')
 
 router.post('/signUpUser' , check , fuction.signUpUser);
-router.get('/signIn' , fuction.signInUser);
+router.post('/signIn' , fuction.signInUser);
 router.post('/verify', fuction.verifyUser) 
 
 router.get('*', function(req, res){
