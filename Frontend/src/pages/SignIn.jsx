@@ -3,6 +3,7 @@ import axios from './../axios'
 import { useNavigate, Link } from "react-router-dom";
 import EmailVerification from "./EmailVerification";
 import useModal from "../Hooks/useModal";
+import pic13 from "../assets/light11.jpg"
 
 
 function signin() {
@@ -93,10 +94,15 @@ function signin() {
         className={`flex-1 bg-gray-200 justify-center items-center duration-700 hidden md:flex transition-all ease-in-out ${
           isLoginForm ? "right-0" : "left-0"
         } ${isLoginForm ? "translte-x-0" : ""}`}
+        style={{
+          backgroundImage: `url(${pic13})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       >
         <div className="text-center">
-          <h1 className="text-4xl font-bold">Welcome to cultureConnect!</h1>
-          <p className="text-gray-500 text-lg mt-4">
+          <h1  className="text-4xl font-bold" style={{ color: '#fff', textShadow: '16px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000', fontSize: '42px' }}>Welcome to cultureConnect!</h1>
+          <p className="text-gray-500 text-lg mt-4" style={{ color: '#fff', textShadow: '16px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000'}}>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis
             scelerisque elit ac purus varius ullamcorper.
           </p>

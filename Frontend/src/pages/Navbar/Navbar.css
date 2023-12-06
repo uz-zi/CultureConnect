@@ -1,0 +1,12 @@
+.navlink {
+    font-family: 'Dancing Script', cursive;
+    font-size: 22px;
+    padding: 1px;
+}
+
+.navlink:hover {
+    border-bottom: 1px solid black;
+}
+
+
+
