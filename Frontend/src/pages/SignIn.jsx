@@ -42,6 +42,7 @@ function signin() {
   
       if(response.data === "Verification code sent to email.")
       {
+        clearTextBox();
         toggleModal();
       }
     } catch (error) {
@@ -85,6 +86,15 @@ function signin() {
         handleSignup();
     }
   };
+
+  const clearTextBox = () => {
+    setEmail('');
+    setFirstname('');
+    setLastname('');
+    setName('');
+    setPassword('');
+    setPhone('');
+  }
 
  
   return (
@@ -246,7 +256,7 @@ function signin() {
                     </button>
                     <div className="flex p-3 justify-center items-center">
                 <Link
-                  to="#"
+                  to="/user/forgetPassword"
                   className="text-blue-500 hover:text-blue-700 underline p-1"
                 >
                   Forgot password?
