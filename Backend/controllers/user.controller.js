@@ -137,7 +137,7 @@ const verify_forgetpass = async (req, res) => {
         return res.status(400).send('Invalid verification code');
     }
 
-    let isVerified = true;
+    isVerified = true;
     res.send('User verified. You can now change your password.');
   } catch (error) {
       console.error("Error in verifyUser: ", error);
