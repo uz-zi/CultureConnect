@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from './../axios';
 import Modal from '../Modal/Modal';
+import { useNavigate } from 'react-router-dom';
 
 function EmailVerification({ onClose, isOpen }) {
     const [inputs, setInputs] = useState(Array(6).fill(''));
     const inputRefs = useRef(inputs.map(() => React.createRef()));
+    const navigate = useNavigate();
 
     const handleInputChange = (index) => (e) => {
         const newInputs = [...inputs];
@@ -17,11 +19,22 @@ function EmailVerification({ onClose, isOpen }) {
         }
     };
 
+    const handleKeyDown = (index) => (e) => {
+        if (e.key === "Backspace" && !inputs[index] && index > 0) {
+            inputRefs.current[index - 1].focus();
+        }
+    };
+
     const handleVerify = async () => {
         const code = inputs.join('');
         try {
             const response = await axios.post('/user/verify', { verificationCode: code });
             console.log(response);
+            if(response.data === "User verified and registered successfully"){
+                alert('signed up successfully');
+                onClose();
+                navigate('/user/signin');
+            }
         } catch (error) {
             console.log(error);
         }
@@ -50,6 +63,7 @@ function EmailVerification({ onClose, isOpen }) {
                             required
                             value={input}
                             onChange={handleInputChange(index)}
+                            onKeyDown={handleKeyDown(index)}
                         />
                     ))}
                 </div>

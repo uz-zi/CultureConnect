@@ -20,12 +20,12 @@ function App() {
       <BrowserRouter>
       <Routes>
         <Route path="/user/signin" element={<SignIn/>}></Route>
-        <Route path="/emailverification" element={<EmailVerification/>}></Route>
         <Route path="/confirmemail" element={<ConfirmEmail/>}></Route>
-        <Route path="/user/dashboard" element={<Dashboard/>}></Route>
+        <Route path="/user/forgetPassword" element={<ConfirmEmail/>}></Route>
+        {/* <Route path="/user/dashboard" element={<Dashboard/>}></Route>
         <Route path="/gpt" element={<Chatbot/>}></Route>
         <Route path="/chatbox" element={<Chatbox/>}></Route>
-        <Route path="/Landing" element={ <><Navbar/><Hero/></>}></Route>
+        <Route path="/Landing" element={ <><Navbar/><Hero/></>}></Route> */}
       </Routes>
       </BrowserRouter>
     </>
