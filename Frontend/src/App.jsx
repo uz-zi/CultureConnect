@@ -10,7 +10,9 @@ import Chatbot from "./pages/chatbot/chatbot"
 import Navbar from "./pages/Navbar/Navbar";
 import Hero from "./pages/Hero/Hero";
 import Chatbox from "./pages/Chatbox/Chatbox";
-
+import Userprofile from "./pages/userprofile/userprofile"
+import Socialhomepage from "./pages/userprofile/userfeed"
+import Social_add_post from "./pages/userprofile/addpost"
 
 function App() {
   
@@ -22,6 +24,9 @@ function App() {
         <Route path="/user/signin" element={<SignIn/>}></Route>
         <Route path="/confirmemail" element={<ConfirmEmail/>}></Route>
         <Route path="/user/forgetPassword" element={<ConfirmEmail/>}></Route>
+        <Route path="/user/userprofile" element={<Userprofile/>}></Route>
+        <Route path="/user/socialhomepage" element={<Socialhomepage/>}></Route>
+        <Route path="/user/Social_add_post" element={<Social_add_post/>}></Route>
         {/* <Route path="/user/dashboard" element={<Dashboard/>}></Route>
         <Route path="/gpt" element={<Chatbot/>}></Route>
         <Route path="/chatbox" element={<Chatbox/>}></Route>

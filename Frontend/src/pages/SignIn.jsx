@@ -17,6 +17,7 @@ function signin() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneError, setPhoneError] = useState(false);
 
   const controlFormToggle = () => {
     setIsLoginForm(!isLoginForm);
@@ -26,6 +27,18 @@ function signin() {
   };
 
 
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    const phoneRegex = /^03\d{9}$/;
+    if (phoneRegex.test(value) || value === "") {
+      setPhoneError(false);
+    } else {
+      setPhoneError(true);
+    }
+    setPhone(value);
+  };
+
+  
   const handleSignup = async () => {
     try {
       const response = await axios.post('/user/signUpUser', 
@@ -208,8 +221,9 @@ function signin() {
                       id="pnum"
                       required
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={handlePhoneChange}
                     />
+                    {phoneError && <div style={{ color: "#22C55E" }}>Enter number in formate 03XXXXXXXXX.</div>}
 
                     <label htmlFor="">Email</label>
                     <input
