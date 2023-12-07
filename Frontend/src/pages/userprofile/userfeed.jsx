@@ -1,13 +1,18 @@
 import React from 'react'
-import '../userprofile/userprofile.css'
-
+import "../userprofile/userprofile.css"
 
 import logo from "../../assets/logo.png";
 import pic1 from "../../assets/fade5.jpg";
-import pic2 from '../../assets/user.jpg';
-
-
-export default function userprofile() {
+import pic2 from '../../assets/user.jpg'
+import pic3 from '../../assets/img1.jpg'
+import pic4 from '../../assets/img2.jpg'
+import pic5 from '../../assets/img3.jpg'
+import pic6 from '../../assets/img5.jpg'
+import pic7 from '../../assets/img6.jpg'
+import pic8 from '../../assets/img7.jpg'
+import pic9 from '../../assets/img8.jpg'
+import pic10 from '../../assets/img9.jpg'
+export default function userfeed() {
   return (
     <div classNameName="body3">
         <main>
@@ -42,30 +47,7 @@ export default function userprofile() {
                 </div>
                 </div>
             </header>
-            <div id="profile-upper">
-                <div id="profile-banner-image">
-                    <img src={pic1} alt="Banner image"/>
-                </div>
-                <div id="profile-d">
-                <div id="profile-pic">
-                    <img src={pic2} className="cover3" alt="User" />
-                </div>
-                <div id="u-name">CultureConnect</div>
-                    <div className="tb" id="m-btns">
-                        <div className="td">
-                            <div className="m-btn bg-primary" style={{marginTop: '3px'}}>
-                                <i style={{fontSize: 22}}>
-                                    <ion-icon name="create-outline"></ion-icon>
-                                </i>
-                                <span>
-                                    Edit Profile
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="black-grd"></div>
-            </div>
+           
             <div id="main-content">
                 <div className="tb">
                     <div className="td" id="l-col">
@@ -76,9 +58,7 @@ export default function userprofile() {
                             <div className="td">
                                 <div className="tb" id="p-tabs-m">
                                     <div className="td active"><i className="material-icons"><ion-icon name="albums-outline"></ion-icon></i><span>TIMELINE</span></div>
-                                    <div className="td"><i className="material-icons"><ion-icon name="people-outline"></ion-icon></i><span>FRIENDS</span></div>
-                                    <div className="td"><i className="material-icons"><ion-icon name="images-outline"></ion-icon></i><span>PHOTOS</span></div>
-                                    <div className="td"><i className="material-icons"><ion-icon name="person-outline"></ion-icon></i><span>ABOUT</span></div>
+                                    <div className="td"><i className="material-icons"><ion-icon name="person-circle-outline"></ion-icon></i><span>My Profile</span></div>
                                 </div>
                             </div>
                         </div>
@@ -102,10 +82,9 @@ export default function userprofile() {
                     </div>
                     </div>
                     <div>
-                    <form method="post" action="/upload" enctype="multipart/form-data">
                     <div className="post">
                         <div className="tb">
-                        <a href="#" className="td p-p-pic"><img src={pic2} alt="Rajeev's profile pic"/></a>
+                        <a href="#" className="td p-p-pic"><img src={pic6} alt="Rajeev's profile pic"/></a>
                         <div className="td p-r-hdr">
                             <div className="p-u-info">
                             <a href="#">CultureConnect</a> shared a memory with <a href="#">Muhammad Ahmad</a>
@@ -117,7 +96,34 @@ export default function userprofile() {
                         </div>
                         </div>
                         <a href="#" className="p-cnt-v">
-                        <img src={pic2}/>
+                        <img src={pic9}/>
+                        </a>
+                        <div>
+                        <div className="p-acts">
+                            <div className="p-act like"><i className="material-icons" style={{fontSize: 22}}><ion-icon name="heart"></ion-icon></i><span>25</span></div>
+                            <div className="p-act comment"><i className="material-icons" style={{fontSize: 22}}><ion-icon name="chatbox"></ion-icon></i><span>1</span></div>
+            
+                        </div>
+                        </div>
+                    </div>    
+                    </div>
+                    <br />
+                    <div>
+                    <div className="post">
+                        <div className="tb">
+                        <a href="#" className="td p-p-pic"><img src={pic6} alt="Rajeev's profile pic"/></a>
+                        <div className="td p-r-hdr">
+                            <div className="p-u-info">
+                            <a href="#">CultureConnect</a> shared a memory with <a href="#">Muhammad Ahmad</a>
+                            </div>
+                            <div className="p-dt">
+                            <i className="material-icons"><ion-icon name="calendar-outline"></ion-icon></i>
+                            <span>December 4, 2023</span>
+                            </div>
+                        </div>
+                        </div>
+                        <a href="#" className="p-cnt-v">
+                        <img src={pic7}/>
                         </a>
                         <div>
                         <div className="p-acts">
@@ -127,8 +133,7 @@ export default function userprofile() {
                         </div>
                         </div>
                     </div>
-                    </form>
-                   
+                    
                     </div>
                     <div id="loading"><i class="material-icons" style={{fontSize: 30}}><ion-icon name="refresh-circle-outline"></ion-icon></i></div>
                 </div>
@@ -140,6 +145,5 @@ export default function userprofile() {
 
         </main>
     </div>
-    
   )
 }
