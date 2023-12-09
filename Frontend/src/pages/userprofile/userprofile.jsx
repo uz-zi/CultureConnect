@@ -1,13 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react';
 import '../userprofile/userprofile.css'
 
 
 import logo from "../../assets/logo.png";
 import pic1 from "../../assets/fade5.jpg";
+import pic6 from '../../assets/img5.jpg';
+import pic5 from '../../assets/img3.jpg';
 import pic2 from '../../assets/user.jpg';
 
 
 export default function userprofile() {
+
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
+
   return (
     <div classNameName="body3">
         <main>
@@ -114,7 +124,59 @@ export default function userprofile() {
                             <i className="material-icons"><ion-icon name="calendar-outline"></ion-icon></i>
                             <span>December 4, 2023</span>
                             </div>
-                        </div>
+                    </div>
+                    <div>
+                        <button
+                            className="btn btn-primary dropdown-toggle my-2"
+                            style={{
+                                backgroundColor: 'blue',
+                                color: 'white',
+                                border: '1px solid blue',
+                                padding: '1px 2px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                outline: 'none',
+                             
+                            }}
+                            type="button"
+                            onClick={toggleDropdown}
+                        >
+                            <ion-icon style={{fontSize: '15px'}} name="ellipsis-vertical"></ion-icon>
+                        </button>
+                        {dropdownOpen && (
+                            <ul style={{
+                                listStyle: 'none',
+                                backgroundColor: '#f9f9f9',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                marginTop: '2px',
+                                padding: '4px 0',
+                            }}>
+                                <li style={{
+                            display: 'block',
+                            color: '#333',
+                            textDecoration: 'none',
+                            padding: '8px 16px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}>
+                                    <a href="#"><h5 style={{fontSize: '10px'}}>Update Post</h5></a>
+                                </li>
+                                <li style={{
+                            display: 'block',
+                            color: '#333',
+                            textDecoration: 'none',
+                            padding: '8px 16px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}>
+                                    <a href="#"><h5 style={{fontSize: '10px'}}>Delete Post</h5></a>
+                                </li>
+                            </ul>
+                        )}
+                    </div>
                         </div>
                         <a href="#" className="p-cnt-v">
                         <img src={pic2}/>

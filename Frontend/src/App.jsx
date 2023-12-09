@@ -13,6 +13,7 @@ import Chatbox from "./pages/Chatbox/Chatbox";
 import Userprofile from "./pages/userprofile/userprofile"
 import Socialhomepage from "./pages/userprofile/userfeed"
 import Social_add_post from "./pages/userprofile/addpost"
+import Updtae_prfile from "./pages/EditUserProfile/editprofile"
 
 function App() {
   
@@ -27,6 +28,7 @@ function App() {
         <Route path="/user/userprofile" element={<Userprofile/>}></Route>
         <Route path="/user/socialhomepage" element={<Socialhomepage/>}></Route>
         <Route path="/user/Social_add_post" element={<Social_add_post/>}></Route>
+        <Route path="/user/Updtae_prfile" element={<Updtae_prfile/>}></Route>
         {/* <Route path="/user/dashboard" element={<Dashboard/>}></Route>
         <Route path="/gpt" element={<Chatbot/>}></Route>
         <Route path="/chatbox" element={<Chatbox/>}></Route>
