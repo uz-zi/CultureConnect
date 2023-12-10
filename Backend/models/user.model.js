@@ -26,6 +26,12 @@ const User = sequelize.define("users", {
         type: DataTypes.STRING,
         allowNull: false
     },
+    Cover_photo: {
+      type: DataTypes.STRING,
+    },
+    Profile_pic: {
+      type: DataTypes.STRING,
+    },
     verificationCode: DataTypes.STRING,
     isVerified: DataTypes.BOOLEAN
  });
