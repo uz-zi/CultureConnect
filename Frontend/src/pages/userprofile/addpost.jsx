@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import axios from '../../axios';
 import greypic from '../../assets/grey.jpeg';
 import img1 from '../../assets/door.jpg';
 
@@ -7,26 +8,71 @@ export default function AddPost() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [fileType, setFileType] = useState(null);
+  const fileInputRef = useRef(null);
 
   function displaySelectedFile(event) {
     const file = event.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
+    const determinedFileType = file.type.startsWith('image') ? 'image' : 'video';
 
     reader.onload = function (e) {
-      const fileType = file.type.startsWith('image') ? 'image' : 'video';
-
-      if (fileType === 'image') {
+      if (determinedFileType === 'image') {
         setSelectedImage(e.target.result);
         setSelectedVideo(null);
       } else {
         setSelectedVideo(e.target.result);
         setSelectedImage(null);
       }
-      setFileType(fileType);
+      setFileType(determinedFileType);
     };
 
     reader.readAsDataURL(file);
   }
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const id = (JSON.parse(localStorage.getItem('user'))).id;
+    console.log(id);
+    const formData = new FormData();
+    if (fileType === 'image') {
+      formData.append('image', fileInputRef.current.files[0]);
+      formData.append('caption', description);
+      formData.append('id', id);
+
+      try {
+        const response = await axios.post('/user/add_imagepost', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    } else if (fileType === 'video') {
+      formData.append('video', fileInputRef.current.files[0]);
+      formData.append('text', description);
+      formData.append('id', id);
+
+      try {
+        const response = await axios.post('/user/add_videopost', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error uploading video:', error);
+      }
+    }
+  };
 
   const fileInputStyle = {
     display: 'none',
@@ -54,10 +100,6 @@ export default function AddPost() {
     borderRadius: '5px',
   };
 
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
-
   return (
     <div>
       <div
@@ -71,53 +113,53 @@ export default function AddPost() {
           <div className="col-12 text-center">
             <h1 className='mx-5 my-5 text-light' style={{fontSize: '38px'}}>Add Post</h1>
             <hr className='text-light bg-light'/>
-            <form method="post" action="/upload" enctype="multipart/form-data" >
-            <div className='my-5' style={{ border: '1px solid black', marginLeft: '420px', marginRight: '420px', paddingTop: '80px', paddingBottom: '40px', backgroundColor: "#FFFFF0", borderRadius: '5px 5px' }}>
-              {(selectedImage || selectedVideo) && (
-                <div className="mb-4 d-flex justify-content-center">
-                  {fileType === 'image' && <img src={selectedImage || greypic} alt="Selected Image" style={previewStyle} />}
-                  {fileType === 'video' && (
-                    <video controls style={previewStyle}>
-                      <source src={selectedVideo} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
+            <form method="post" action="/upload" enctype="multipart/form-data" onSubmit={handleSubmit}>
+              <div className='my-5' style={{ border: '1px solid black', marginLeft: '420px', marginRight: '420px', paddingTop: '80px', paddingBottom: '40px', backgroundColor: "#FFFFF0", borderRadius: '5px 5px' }}>
+                {(selectedImage || selectedVideo) && (
+                  <div className="mb-4 d-flex justify-content-center">
+                    {fileType === 'image' && <img src={selectedImage || greypic} alt="Selected" style={previewStyle} />}
+                    {fileType === 'video' && (
+                      <video controls style={previewStyle}>
+                        <source src={selectedVideo} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                  </div>
+                )}
+                <div className="d-flex justify-content-center">
+                  <label className="btn btn-primary btn-rounded m-1" htmlFor="customFile">
+                    Choose file
+                    <input
+                      type="file"
+                      className="form-control d-none"
+                      id="customFile"
+                      accept="image/*,video/*"
+                      onChange={displaySelectedFile}
+                      style={fileInputStyle}
+                      ref={fileInputRef}
+                    />
+                  </label>
                 </div>
-              )}
-              <div className="d-flex justify-content-center">
-                <label className="btn btn-primary btn-rounded m-1" htmlFor="customFile">
-                  Choose file
-                  <input
-                    type="file"
-                    className="form-control d-none"
-                    id="customFile"
-                    accept="image/*,video/*"
-                    onChange={displaySelectedFile}
-                    style={fileInputStyle}
+                <br /><br />
+                <div>
+                  <label className="form-label text-center" htmlFor="">
+                    <h3><b>Add Description</b></h3> 
+                  </label>
+                  <input 
+                    type="text"
+                    className="form-control"
+                    style={formcontentaddpost}
+                    placeholder="Enter Your Description"
+                    aria-label="Description"
+                    value={description}
+                    onChange={handleDescriptionChange}
                   />
-                </label>
+                </div>
+                <div className="gap-1 d-md-flex justify-content-md-center text-center">
+                  <button type="submit" className="btn btn-primary my-5 btn-lg text-dark">ADD POST</button>
+                </div>
               </div>
-              <br /><br />
-              <div>
-                <label className="form-label text-center" htmlFor="">
-                  <h3><b>Add Description</b></h3> 
-                </label>
-                <input 
-                  type="text"
-                  className="form-control"
-                  style={formcontentaddpost}
-                  placeholder="Enter Your Description"
-                  aria-label="Description"
-                  value={description}
-                  onChange={handleDescriptionChange}
-                />
-              </div>
-              <div className="gap-1 d-md-flex justify-content-md-center text-center">
-                <button type="button" className="btn btn-primary my-5 btn-lg text-dark">ADD POST</button>
-              </div>
-            </div>
             </form>
-            
             <br /><br />
           </div>
         </div>

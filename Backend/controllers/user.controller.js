@@ -154,17 +154,20 @@ const retrive_user_data = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const images = await User.findAll({ where: { id: req.body.id } });
+    console.log(req.query.id);
 
-    if (images.length === 0) {
-      return res.status(404).send('No data found');
+    // Use findOne to get a single user object
+    const user = await User.findOne({ where: { id: req.query.id } });
+
+    if (!user) {
+      return res.status(404).send('No user found');
     }
 
-    console.log("data dispalyed");
-    res.status(200).send(images);
+    console.log("User data displayed");
+    res.status(200).send(user); // Send the user object directly
 
   } catch (error) {
-    console.error("Error fetching media: ", error.message);
+    console.error("Error fetching user data: ", error.message);
     res.status(500).send('Internal Server Error');
   }
 };
@@ -225,9 +228,9 @@ const allMedia = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const Userphoto = await User.findAll({ where: { id: req.body.id } });
-    const images = await Image_Post.findAll({ where: { UserID: req.body.id } });
-    const videos = await Video_Post.findAll({ where: { UserId: req.body.id } });
+    const Userphoto = await User.findAll({ where: { id: req.query.id } });
+    const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
+    const videos = await Video_Post.findAll({ where: { UserId: req.query.id } });
 
     if (images.length === 0 && videos.length === 0) {
       return res.status(404).send('No images or videos found for the given user ID');
@@ -463,7 +466,7 @@ const signInUser = async (req, res) => {
 
     if (!user) {
       console.error("Invalid Credentials!");
-      res.send(new errorHandler("Invalid Credentials!", 404));
+      res.status(401).send("Invalid Credentials");
     } else {
       const token = jwtToken.sign({ Role: "user" }, 'dfghjk');
 

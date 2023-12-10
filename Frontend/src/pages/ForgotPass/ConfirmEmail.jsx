@@ -14,9 +14,18 @@ export default function () {
       console.log(response);
       if (response.data === "Verification code sent to your email") {
         toggleModal();
+      } else if (response.status === 404) {
+        alert("Email not found");
+      } else {
+        alert('An unexpected error occurred');
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error object:", error);
+      if (error.response && error.response.status === 404) {
+        alert("Email not found");
+      } else {
+        alert('Error sending request');
+      }
     }
   };
 
