@@ -258,7 +258,7 @@ const update_image_Post = async (req, res) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
-      if (err) {
+      if (err && !req.body.existingImagePath) {
         return res.status(500).send(err.message);
       }
 
@@ -266,19 +266,19 @@ const update_image_Post = async (req, res) => {
         await sequelize.sync();
         console.log("Images table synced successfully!");
 
-        
+        const imagePath = req.file ? req.file.path : req.body.existingImagePath;
+
         await Image_Post.update({
-          picture: req.file.path,
+          picture: imagePath,
           img_caption: req.body.caption
         }, {
           where: {
             id: req.body.id
           }
         });
-        
 
         console.log("image updated:");
-        res.send("Successfully updtaed record for the uploaded image.");
+        res.send("Successfully updated record for the image.");
       } catch (error) {
         console.error("Failed to update new record: ", error);
         res.status(500).send(error.message);
@@ -289,6 +289,7 @@ const update_image_Post = async (req, res) => {
     res.status(500).send(error.message);
   }
 };
+
 
 
 
@@ -335,7 +336,7 @@ const update_video_Post = async (req, res) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
-      if (err) {
+      if (err && !req.body.existingVideoPath) {
         return res.status(500).send(err.message);
       }
 
@@ -343,8 +344,10 @@ const update_video_Post = async (req, res) => {
         await sequelize.sync();
         console.log("Video table synced successfully!");
 
+        const videoPath = req.file ? req.file.path : req.body.existingVideoPath;
+
         await Video_Post.update({
-          Video: req.file.path,
+          Video: videoPath,
           Captions: req.body.caption
         }, {
           where: {
@@ -364,6 +367,7 @@ const update_video_Post = async (req, res) => {
     res.status(500).send(error.message);
   }
 };
+
 
 
 const upload_video_Post = async (req, res) => {

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from '../../axios';
 import greypic from '../../assets/grey.jpeg';
 import img1 from '../../assets/door.jpg';
+import { useNavigate } from 'react-router-dom';
 
 export default function AddPost() {
   const [description, setDescription] = useState('');
@@ -9,6 +10,7 @@ export default function AddPost() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [fileType, setFileType] = useState(null);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   function displaySelectedFile(event) {
     const file = event.target.files[0];
@@ -53,6 +55,10 @@ export default function AddPost() {
           }
         });
         console.log(response.data);
+        if(response.data==="Successfully added record for the uploaded image.")
+        {
+          navigate('/user/userprofile');
+        }
       } catch (error) {
         console.error('Error uploading image:', error);
       }
@@ -68,6 +74,10 @@ export default function AddPost() {
           }
         });
         console.log(response.data);
+        if(response.data==="Successfully added record for the video.")
+        {
+          navigate('/user/userprofile');
+        }
       } catch (error) {
         console.error('Error uploading video:', error);
       }

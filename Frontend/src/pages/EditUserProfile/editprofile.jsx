@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import pic1 from "../../assets/grey.jpeg";
-import axios from '../../axios';
+import axios from "../../axios";
+import { useNavigate } from "react-router-dom";
 
 export default function EditProfile() {
   // State variables for form fields
@@ -8,6 +9,7 @@ export default function EditProfile() {
   const [lastName, setLastName] = useState("");
   const [nickName, setNickName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const navigate = useNavigate();
 
   // State variables for images
   const [profilePic, setProfilePic] = useState(pic1); // Default to pic1
@@ -65,26 +67,31 @@ export default function EditProfile() {
   useEffect(() => {
     async function getInfo() {
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = JSON.parse(localStorage.getItem("user"));
         if (user && user.id) {
-          const response = await axios.get('/user/display_userdatafior_update', {
-            params: { id: user.id }
-          });
+          const response = await axios.get(
+            "/user/display_userdatafior_update",
+            {
+              params: { id: user.id },
+            }
+          );
 
-          setFirstName(response.data.FirstName)
-          setLastName(response.data.LastName)
-          setNickName(response.data.Name)
-          setPhoneNumber(response.data.PhoneNumber)
+          setFirstName(response.data.FirstName);
+          setLastName(response.data.LastName);
+          setNickName(response.data.Name);
+          setPhoneNumber(response.data.PhoneNumber);
 
-          if(response.data.Cover_photo){
-            setBannerPic(response.data.Cover_photo)
+          if (response.data.Cover_photo) {
+            console.log(response.data.Cover_photo);
+            setBannerPic(`http://127.0.0.1:5000/${response.data.Cover_photo}`);
           }
-          if(response.data.Profile_pic){
-            setProfilePic(response.data.Profile_pic)
+          if (response.data.Profile_pic) {
+            console.log(response.data.Profile_pic);
+            setProfilePic(`http://127.0.0.1:5000/${response.data.Profile_pic}`);
           }
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
       }
     }
 
@@ -95,38 +102,46 @@ export default function EditProfile() {
     try {
       const formData = new FormData();
 
-      formData.append('name', nickName);
-      formData.append('fname', firstName);
-      formData.append('lname', lastName);
-      formData.append('pnum', phoneNumber);
+      formData.append("name", nickName);
+      formData.append("fname", firstName);
+      formData.append("lname", lastName);
+      formData.append("pnum", phoneNumber);
 
-      const profileImageElement = document.getElementById('customFile1');
-      const coverImageElement = document.getElementById('customFile2');
+      const profileImageElement = document.getElementById("customFile1");
+      const coverImageElement = document.getElementById("customFile2");
 
       if (profileImageElement.files[0]) {
-        formData.append('profile_image', profileImageElement.files[0]);
+        formData.append("profile_image", profileImageElement.files[0]);
       }
 
       if (coverImageElement.files[0]) {
-        formData.append('cover_image', coverImageElement.files[0]);
+        formData.append("cover_image", coverImageElement.files[0]);
       }
 
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(localStorage.getItem("user"));
       if (user && user.id) {
-        formData.append('id', user.id);
+        formData.append("id", user.id);
       }
 
-      const response = await axios.put('/user/upadte_userprofile', formData, {
+      const response = await axios.put("/user/upadte_userprofile", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log(response.data);
+      if(response.data === "Data updated"){
+        navigate('/user/userprofile')
+      }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
+
+
+  const handleCancel = () => {
+    navigate('/user/userprofile')
+  }
 
   return (
     <div style={{ marginTop: "20px", color: "#9b9ca1" }}>
@@ -141,9 +156,15 @@ export default function EditProfile() {
             <form className="file-upload">
               <div className="row mb-5 gx-5">
                 <div className="col-xxl-8 mb-5 mb-xxl-0">
-                  <div className="bg-secondary-soft px-4 py-5 rounded mx-5" style={formcontent}>
+                  <div
+                    className="bg-secondary-soft px-4 py-5 rounded mx-5"
+                    style={formcontent}
+                  >
                     <div className="row g-3">
-                      <h4 className="mb-4 mt-0 text-dark" style={{ fontSize: "38px" }}>
+                      <h4
+                        className="mb-4 mt-0 text-dark"
+                        style={{ fontSize: "38px" }}
+                      >
                         Contact detail
                       </h4>
                       <div className="col-md-12 text-dark">
@@ -198,43 +219,69 @@ export default function EditProfile() {
                   </div>
                 </div>
                 <div className="col-xxl-4">
-                  <h4 className="mb-4 mt-5 text-center text-dark" style={{ fontSize: "38px" }}>
+                  <h4
+                    className="mb-4 mt-5 text-center text-dark"
+                    style={{ fontSize: "38px" }}
+                  >
                     Profile pic
                   </h4>
                   <div className="mb-4 d-flex justify-content-center">
-                    <img id="selectedImage1" src={profilePic} alt="Profile" style={{ width: "300px", height: "300px" }} />
+                    <img
+                      id="selectedImage1"
+                      src={profilePic}
+                      alt="Profile"
+                      style={{ width: "300px", height: "300px" }}
+                    />
                   </div>
                   <div className="d-flex justify-content-center">
                     <div className="btn btn-primary btn-rounded">
-                      <label className="form-label text-white m-1" htmlFor="customFile1">
+                      <label
+                        className="form-label text-white m-1"
+                        htmlFor="customFile1"
+                      >
                         Choose file
                       </label>
                       <input
                         type="file"
                         className="form-control d-none"
                         id="customFile1"
-                        onChange={(event) => displaySelectedImage(event, setProfilePic)}
+                        onChange={(event) =>
+                          displaySelectedImage(event, setProfilePic)
+                        }
                       />
                     </div>
                   </div>
                 </div>
                 <div className="col-xxl-12 mb-5 mb-xxl-0">
-                  <h4 className="mb-4 mt-0 text-center text-dark" style={{ fontSize: "38px" }}>
+                  <h4
+                    className="mb-4 mt-0 text-center text-dark"
+                    style={{ fontSize: "38px" }}
+                  >
                     Banner Picture
                   </h4>
                   <div className="mb-4 d-flex justify-content-center">
-                    <img id="selectedImage2" src={bannerPic} alt="Banner" style={{ width: "1100px", height: "300px" }} />
+                    <img
+                      id="selectedImage2"
+                      src={bannerPic}
+                      alt="Banner"
+                      style={{ width: "1100px", height: "300px" }}
+                    />
                   </div>
                   <div className="d-flex justify-content-center">
                     <div className="btn btn-primary btn-rounded">
-                      <label className="form-label text-white m-1" htmlFor="customFile2">
+                      <label
+                        className="form-label text-white m-1"
+                        htmlFor="customFile2"
+                      >
                         Choose file
                       </label>
                       <input
                         type="file"
                         className="form-control d-none"
                         id="customFile2"
-                        onChange={(event) => displaySelectedImage(event, setBannerPic)}
+                        onChange={(event) =>
+                          displaySelectedImage(event, setBannerPic)
+                        }
                       />
                     </div>
                   </div>
@@ -245,8 +292,9 @@ export default function EditProfile() {
                   type="button"
                   className="btn btn-danger my-5 btn-lg"
                   style={{ backgroundColor: "red" }}
+                  onClick={handleCancel}
                 >
-                  Delete profile
+                  Cancel
                 </button>
                 <button
                   type="button"
