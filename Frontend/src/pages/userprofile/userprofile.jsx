@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../userprofile/userprofile.css'
+import axios from '../../axios'
+import { useNavigate } from 'react-router-dom';
 
 
 import logo from "../../assets/logo.png";
@@ -10,12 +12,39 @@ import pic2 from '../../assets/user.jpg';
 
 
 export default function userprofile() {
-
+    const [bannerImage, setBannerImage] = useState(pic1);
+    const [profileImage, setProfileImage] = useState(pic2);
+    const [contentImage, setContentImage] = useState(pic2);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
+
+    const handleClick = () => {
+        navigate('/user/Social_add_post')
+    }
+
+    useEffect(() => {
+        async function getInfo() {
+          try {
+            const id = (JSON.parse(localStorage.getItem('user'))).id;
+            console.log(id);
+            const response =await axios.get('/user/socialdata', {
+                params:{
+                    id: id
+                }
+            });
+            console.log(response);
+            console.log(response.data.Userphoto[0].Cover_photo);
+          } catch (error) {
+            console.log(error);
+          }
+        }
+    
+        getInfo();
+      }, []);
 
 
   return (
@@ -45,7 +74,7 @@ export default function userprofile() {
                     </div>
                     <div className="td">
                         <a href="#" id="p-link">
-                            <img src={pic2}/>
+                            <img src={profileImage}/>
                         </a>
                     </div>
                     </div>
@@ -54,11 +83,11 @@ export default function userprofile() {
             </header>
             <div id="profile-upper">
                 <div id="profile-banner-image">
-                    <img src={pic1} alt="Banner image"/>
+                <img src={bannerImage} alt="Banner image" />
                 </div>
                 <div id="profile-d">
                 <div id="profile-pic">
-                    <img src={pic2} className="cover3" alt="User" />
+                <img src={profileImage} className="cover3" alt="User" />
                 </div>
                 <div id="u-name">CultureConnect</div>
                     <div className="tb" id="m-btns">
@@ -97,14 +126,14 @@ export default function userprofile() {
                         <div id="c-tabs-cvr">
                             <div className="tb" id="c-tabs">
                             <div className="td active"><i className="material-icons"><ion-icon name="menu-outline"></ion-icon></i><span>Make Post</span></div>
-                            <div className="td"><i className="material-icons"><ion-icon name="camera-outline"></ion-icon></i><span>Photo</span></div>
-                            <div className="td"><i className="material-icons"><ion-icon name="videocam-outline"></ion-icon></i><span>Video</span></div>
+                            <div className="td" onClick={handleClick}><i className="material-icons"><ion-icon name="camera-outline"></ion-icon></i><span>Photo</span></div>
+                            <div className="td" onClick={handleClick}><i className="material-icons"><ion-icon name="videocam-outline"></ion-icon></i><span>Video</span></div>
                             <div className="td"><i className="material-icons"><ion-icon name="calendar-outline"></ion-icon></i><span>Life Event</span></div>
                         </div>
                     </div>
                     <div id="c-c-main">
                         <div className="tb">
-                            <div className="td" id="p-c-i"><img src={pic2} alt="Profile pic"/></div>
+                            <div className="td" id="p-c-i"><img src={profileImage} alt="Profile pic"/></div>
                             <div className="td" id="c-inp">
                                 <input type="text" placeholder="What's on your mind?"/>
                             </div>
