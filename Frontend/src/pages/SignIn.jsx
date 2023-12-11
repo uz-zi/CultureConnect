@@ -99,6 +99,7 @@ function signin() {
       }
     } catch (error) {
       console.error(error);
+      alert('Invalid Credentials!');
     }
   }
 
