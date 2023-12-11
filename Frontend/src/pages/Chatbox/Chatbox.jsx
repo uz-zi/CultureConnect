@@ -15,11 +15,36 @@ import pic10 from '../../assets/img9.jpg'
 export default function Chatbox() {
   return (
     <div className='body'>
-        <div className="container">
+        <div className="container" style={{
+            position: 'relative',
+            width: '1396px', // Corrected typo in 'bpx' to 'px'
+            maxWidth: '100%',
+            height: 'calc(100vh - 40px)',
+            background: '#e5ddd5',
+            boxShadow: '0 1px 1px 0 rgba(0, 0, 0, 0.06), 0 2px 5px 0 rgba(0, 0, 0, 0.06)',
+            display: 'flex',
+        }}>
+            
             <div className="leftside">
-                <div className="header">
+                <div className="header" style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '60px',
+                      background: '#ededed',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0 15px',
+                }}>
                     <div className="userimg">
-                    <img src={pic2} className="cover" alt="User1" />
+                    <img src={pic2} className="cover" style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                    }}  alt="User1" />
                     </div>
                     <ul className='Nav_icons'>
                         <li><ion-icon name="chatbox"></ion-icon></li>
@@ -36,7 +61,14 @@ export default function Chatbox() {
                 <div className="chatlist">
                     <div className="block active">
                         <div className="imgbx">
-                            <img src={pic6} className="cover" alt="User" />
+                            <img src={pic6} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -51,7 +83,14 @@ export default function Chatbox() {
 
                     <div className="block unread">
                         <div className="imgbx">
-                            <img src={pic9} className="cover" alt="User" />
+                            <img src={pic9} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -67,7 +106,14 @@ export default function Chatbox() {
 
                     <div className="block unread">
                         <div className="imgbx">
-                            <img src={pic6} className="cover" alt="User" />
+                            <img src={pic6} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -83,7 +129,14 @@ export default function Chatbox() {
 
                     <div className="block unread">
                         <div className="imgbx">
-                            <img src={pic5} className="cover" alt="User" />
+                            <img src={pic5} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -99,7 +152,14 @@ export default function Chatbox() {
 
                     <div className="block">
                         <div className="imgbx">
-                            <img src={pic7} className="cover" alt="User" />
+                            <img src={pic7} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -114,7 +174,14 @@ export default function Chatbox() {
 
                     <div className="block">
                         <div className="imgbx">
-                            <img src={pic8} className="cover" alt="User" />
+                            <img src={pic8} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -129,7 +196,14 @@ export default function Chatbox() {
 
                     <div className="block unread">
                         <div className="imgbx">
-                            <img src={pic9} className="cover" alt="User" />
+                            <img src={pic9} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -145,7 +219,14 @@ export default function Chatbox() {
 
                     <div className="block">
                         <div className="imgbx">
-                            <img src={pic10} className="cover" alt="User" />
+                            <img src={pic10} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User" />
                         </div>
                         <div className="details">
                             <div className="listhead">
@@ -162,10 +243,26 @@ export default function Chatbox() {
             </div>
 
             <div className="rightside">
-                <div className="header">
+                <div className="header" style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '60px',
+                      background: '#ededed',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0 15px',
+                }}>
                     <div className="imgtext">
                         <div className="userimg">
-                            <img src={pic6} className="cover" alt="User1" />
+                            <img src={pic6} className="cover" style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }} alt="User1" />
                         </div>
                         <h6>Umair<br/><span>Online</span></h6>
                     </div>

@@ -513,7 +513,8 @@ const signInUser = async (req, res) => {
         if (user) {
             const forgetpass_verificationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
             await sendVerificationEmail(req.body.email, forgetpass_verificationCode);
-            res.send("Verification code sent to your email");
+            res.send("Verification code sent to your email")
+            console.log(forgetpass_verificationCode);
 
             temp_forget_pass = forgetpass_verificationCode;
             temp_forgetpass_email = req.body.email;

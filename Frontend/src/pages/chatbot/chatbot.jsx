@@ -1,58 +1,157 @@
 import React from 'react'
-import '../chatbot/chatbot.css'
-import pic1 from '../../assets/pattern.png'
 import logo from "../../assets/logo.png";
-import pic2 from '../../assets/user.jpg'
-import pic3 from '../../assets/img1.jpg'
-import pic4 from '../../assets/img2.jpg'
-import pic5 from '../../assets/img3.jpg'
-import pic6 from '../../assets/img5.jpg'
-import pic7 from '../../assets/img6.jpg'
-import pic8 from '../../assets/img7.jpg'
-import pic9 from '../../assets/img8.jpg'
-import pic10 from '../../assets/img9.jpg'
+
 
 export default function chatbot() {
   return (
-    <div className='body1'>
-      <div className="container1">
-        <div className="leftside1">
-            <div className="header1">
-                    <div className="userimg1">
-                        <img src={logo} className="cover1" alt="User1" />
+    <div style={{
+        margin: 0,
+        padding: 0,
+        boxSizing: 'border-box',
+        fontFamily: "'Open Sans', sans-serif",
+    }}>
+        <div className='body' style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(#009688 0%, #009688 130px, #d9dbd5 130px, #d9dbd5 100px)',
+    }}>
+      <div className="container" style={{
+        position: 'relative',
+        width: '1600px',
+        maxWidth: '100%',
+        height: 'calc(100vh - 40px)',
+        background: '#e5ddd5',
+        boxShadow: '0 1px 1px 0 rgb(0, 0, 0, 0.06), 0 2px 5px 0 rgb(0, 0, 0, 0.06)',
+        display: 'flex',
+    }}>
+        <div className="leftside" style={{
+             position: 'relative',
+             flex: '20%',
+             background: '#000000',
+             borderRight: '1px solid #000',
+        }}>
+            <div className="header" style={{
+                position: 'relative',
+                width: '100%',
+                height: '60px',
+                background: '#ededed',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0 15px',
+            }}>
+                    <div className="userimg" style={{
+                        position: 'relative',
+                        width: '40px',
+                        height: '40px',
+                        overflow: 'hidden',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                    }}>
+                        <img src={logo} className="cover" style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                        }} alt="User1" />
                     </div>
                     <div className="headtext">
                         <h5><b>New Chat</b></h5>
                     </div>
-                    <ul className='Nav_icons1'>
-                        <li><ion-icon name="create-outline"></ion-icon></li>
+                    <ul className='Nav_icons' style={{display: 'flex',}}>
+                        <li style={{
+                            display: 'flex',
+                            listStyle: 'none',
+                            cursor: 'pointer',
+                            color: '#51585c',
+                            fontSize: '1.5em',
+                            marginLeft: '15px',
+                            paddingTop: '17px',
+                        }}><ion-icon name="create-outline"></ion-icon></li>
                     </ul>
 
             </div>
         </div>
-        <div className="rightside2">
-                <div className="header2">
-                    <div className="imgtext1">
+        <div className="rightside" style={{
+            position: 'relative',
+            flex: '80%',
+            background: '#FFFFFF',
+            borderRight: '1px solid rgba(0, 0, 0, 0.2)',
+        }}>
+                <div className="header" style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '60px',
+                    background: '#faf3f3f2',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0 15px',
+                }}>
+                    <div className="imgtext">
                         <h5><b>CultureConnect Chatbot</b></h5>
                     </div>
                     
-                    <ul className='Nav_icons1'>
-                        <li><ion-icon name="share-outline"></ion-icon></li>
+                    <ul className='Nav_icons' style={{display: 'flex',}}>
+                        <li style={{
+                            display: 'flex',
+                            listStyle: 'none',
+                            cursor: 'pointer',
+                            color: '#51585c',
+                            fontSize: '1.5em',
+                            marginLeft: '15px',
+                            paddingTop: '17px',
+                        }}><ion-icon name="share-outline"></ion-icon></li>
                     </ul>
                 </div>
 
-                <div className="chatBox1">
+                <div className="chatBox" style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: 'calc(100% - 120px)',
+                    padding: '50px',
+                    overflowY: 'auto',
+                }}>
                     
                 </div>
 
-                <div className="chatbox_input1">
-                    <input type="text" placeholder='Type a message'/>
-                    <ion-icon name="send-outline"></ion-icon>
+                <div className="chatbox_input" style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '60px',
+                    background: '#faf3f3f2',
+                    padding: '15px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderTop: '1px solid #000000',
+                }}>
+                    <input style={{
+                        position: 'relative',
+                        width: '95%',
+                        margin: '0 170px',
+                        padding: '7px 20px',
+                        border: '1px solid rgba(0, 0, 0, 0.06)',
+                        outline: 'none',
+                        borderRadius: '30px',
+                        fontSize: '1em',
+                    }} type="text" placeholder='Type a message'/>
+                    <ion-icon name="send-outline" style={{
+                          cursor: 'pointer',
+                          fontSize: '1.8em',
+                          color: '#51585c',
+                    }}></ion-icon>
 
                 </div>
             </div>
       </div>
     </div>
+    </div>
+    
   )
 }
 
