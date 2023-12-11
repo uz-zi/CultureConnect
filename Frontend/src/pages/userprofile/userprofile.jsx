@@ -4,30 +4,30 @@ import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo.png";
-import pic1 from "../../assets/fade5.jpg";
-import pic6 from "../../assets/img5.jpg";
+import pic1 from "../../assets/profileIcon.png";
 import pic5 from "../../assets/img3.jpg";
-import pic2 from "../../assets/user.jpg";
+import pic2 from "../../assets/profileIcon.png";
 
 export default function userprofile() {
   const [bannerImage, setBannerImage] = useState(pic1);
   const [profileImage, setProfileImage] = useState(pic2);
-  const [contentImage, setContentImage] = useState(pic2);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  const handleClick = () => {
-    navigate("/user/Social_add_post");
+  const handleClick = (choice) => {
+    navigate('/user/Social_add_post', { state: { uploadType: choice } });
   };
 
   const handleEdit = () => {
     navigate("/user/Updtae_prfile");
   };
+  
 
   const handleDelete = async (id, image, video) => {
     console.log("Deleting post with id:", id, image, video);
@@ -80,6 +80,7 @@ export default function userprofile() {
           },
         });
         console.log(response);
+        setName(response.data.Userphoto[0].Name);
         setProfileImage(
           `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
         );
@@ -156,7 +157,7 @@ export default function userprofile() {
             <div id="profile-pic">
               <img src={profileImage} className="cover3" alt="User" />
             </div>
-            <div id="u-name">CultureConnect</div>
+            <div id="u-name">{name}</div>
             <div className="tb" id="m-btns">
               <div className="td">
                 <div
@@ -219,13 +220,13 @@ export default function userprofile() {
                       </i>
                       <span>Make Post</span>
                     </div>
-                    <div className="td" onClick={handleClick}>
+                    <div className="td" onClick={() => handleClick('image')}>
                       <i className="material-icons">
                         <ion-icon name="camera-outline"></ion-icon>
                       </i>
                       <span>Photo</span>
                     </div>
-                    <div className="td" onClick={handleClick}>
+                    <div className="td" onClick={() => handleClick('video')}>
                       <i className="material-icons">
                         <ion-icon name="videocam-outline"></ion-icon>
                       </i>
@@ -343,8 +344,8 @@ export default function userprofile() {
                                 onClick={() =>
                                   handleDelete(
                                     post.id,
-                                    post.img_caption,
-                                    post.Captions
+                                    post.picture,
+                                    post.Video
                                   )
                                 }
                               >

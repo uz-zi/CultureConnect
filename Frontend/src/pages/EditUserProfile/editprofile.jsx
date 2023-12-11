@@ -3,17 +3,15 @@ import pic1 from "../../assets/grey.jpeg";
 import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
 
+
 export default function EditProfile() {
-  // State variables for form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [nickName, setNickName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [profilePic, setProfilePic] = useState(pic1);
+  const [bannerPic, setBannerPic] = useState(pic1);
   const navigate = useNavigate();
-
-  // State variables for images
-  const [profilePic, setProfilePic] = useState(pic1); // Default to pic1
-  const [bannerPic, setBannerPic] = useState(pic1); // Default to pic1
 
   // Styles
   const formcontent = {
@@ -33,19 +31,16 @@ export default function EditProfile() {
     borderRadius: "5px",
   };
 
-  function displaySelectedImage(event, setImage) {
+  const displaySelectedImage = (event, setImage) => {
     const fileInput = event.target;
-
     if (fileInput.files && fileInput.files[0]) {
       const reader = new FileReader();
-
       reader.onload = function (e) {
         setImage(e.target.result);
       };
-
       reader.readAsDataURL(fileInput.files[0]);
     }
-  }
+  };
 
   // Handlers for input change
   const handleFirstNameChange = (event) => {
@@ -101,7 +96,6 @@ export default function EditProfile() {
   const handleSubmission = async () => {
     try {
       const formData = new FormData();
-
       formData.append("name", nickName);
       formData.append("fname", firstName);
       formData.append("lname", lastName);
@@ -110,11 +104,11 @@ export default function EditProfile() {
       const profileImageElement = document.getElementById("customFile1");
       const coverImageElement = document.getElementById("customFile2");
 
-      if (profileImageElement.files[0]) {
+      if (profileImageElement && profileImageElement.files[0]) {
         formData.append("profile_image", profileImageElement.files[0]);
       }
 
-      if (coverImageElement.files[0]) {
+      if (coverImageElement && coverImageElement.files[0]) {
         formData.append("cover_image", coverImageElement.files[0]);
       }
 
@@ -129,9 +123,8 @@ export default function EditProfile() {
         },
       });
 
-      console.log(response.data);
-      if(response.data === "Data updated"){
-        navigate('/user/userprofile')
+      if (response.data === "Data updated successfully") {
+        navigate('/user/userprofile');
       }
     } catch (error) {
       console.error("Error updating profile:", error);

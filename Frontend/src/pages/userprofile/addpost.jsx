@@ -1,33 +1,53 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from '../../axios';
 import greypic from '../../assets/grey.jpeg';
 import img1 from '../../assets/door.jpg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function AddPost() {
   const [description, setDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [fileType, setFileType] = useState(null);
+  const [fileType, setFileType] = useState(null); // State to keep track of the selected file type
+  const [error, setError] = useState('');
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const uploadType = location.state?.uploadType; // 'image' or 'video'
+
+  useEffect(() => {
+    if (!['image', 'video'].includes(uploadType)) {
+      setError('Invalid upload type');
+    } else {
+      setFileType(uploadType); // Set the fileType based on the uploadType
+    }
+  }, [uploadType]);
 
   function displaySelectedFile(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const isImage = file.type.startsWith('image');
+    const isVideo = file.type.startsWith('video');
+
+    if ((fileType === 'image' && !isImage) || (fileType === 'video' && !isVideo)) {
+      setError(`Please select a ${fileType}.`);
+      setSelectedImage(null);
+      setSelectedVideo(null);
+      return;
+    }
+
+    setError("");
     const reader = new FileReader();
-    const determinedFileType = file.type.startsWith('image') ? 'image' : 'video';
 
     reader.onload = function (e) {
-      if (determinedFileType === 'image') {
+      if (isImage) {
         setSelectedImage(e.target.result);
         setSelectedVideo(null);
-      } else {
+      } else if (isVideo) {
         setSelectedVideo(e.target.result);
         setSelectedImage(null);
       }
-      setFileType(determinedFileType);
     };
 
     reader.readAsDataURL(file);
@@ -36,6 +56,7 @@ export default function AddPost() {
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
   };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -152,6 +173,7 @@ export default function AddPost() {
                 </div>
                 <br /><br />
                 <div>
+                  {error && <h3>{error}</h3>}
                   <label className="form-label text-center" htmlFor="">
                     <h3><b>Add Description</b></h3> 
                   </label>

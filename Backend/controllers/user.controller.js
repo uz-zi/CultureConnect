@@ -176,51 +176,50 @@ const retrive_user_data = async (req, res) => {
 
 //------------UPDATE PROFILE------------
 const update_Profile = async (req, res) => {
-  image_upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'profile_image', maxCount: 1 }])(req, res, (err) => {
-      if (req.fileValidationError) {
-          return res.status(400).send(req.fileValidationError);
-      }
-      if (err) {
-          return res.status(500).send(err.message);
-      }
+  image_upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'profile_image', maxCount: 1 }])(req, res, async (err) => {
+    if (req.fileValidationError) {
+        return res.status(400).send(req.fileValidationError);
+    }
+    if (err) {
+        return res.status(500).send(err.message);
+    }
+
+    try {
+      // Determine paths for cover and profile images
       const coverImagePath = req.files['cover_image'] ? req.files['cover_image'][0].path : null;
       const profileImagePath = req.files['profile_image'] ? req.files['profile_image'][0].path : null;
 
-      sequelize
-          .sync()
-          .then(() => {
-              User.update(
-                  {
-                      Name: req.body.name,
-                      FirstName: req.body.fname,
-                      LastName: req.body.lname,
-                      PhoneNumber: req.body.pnum,
-                      Cover_photo: coverImagePath,
-                      Profile_pic: profileImagePath
-                  },
-                  {
-                      where: { id: req.body.id }
-                  }
-              )
-              .then((data) => {
-                  if (!data) {
-                      res.send(new errorHandler("No data updated", 404));
-                  } else {
-                      console.log(data);
-                      res.status(200).send("Data updated");
-                  }
-              })
-              .catch((error) => {
-                  console.error("Failed to update record: ", error);
-                  res.status(500).send(error.message);
-              });
-          })
-          .catch((error) => {
-              console.error("Failed to connect table: ", error);
-              res.status(500).send(error.message);
-          });
+      // Prepare the update data
+      const updateData = {
+        Name: req.body.name,
+        FirstName: req.body.fname,
+        LastName: req.body.lname,
+        PhoneNumber: req.body.pnum,
+      };
+
+      // Update image paths only if new images are provided
+      if (coverImagePath) {
+        updateData.Cover_photo = coverImagePath;
+      }
+      if (profileImagePath) {
+        updateData.Profile_pic = profileImagePath;
+      }
+
+      // Update user profile in the database
+      const [updatedRows] = await User.update(updateData, { where: { id: req.body.id } });
+      if (updatedRows === 0) {
+        res.status(404).send("User not found or no data updated");
+      } else {
+        res.status(200).send("Data updated successfully");
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      res.status(500).send(error.message);
+    }
   });
 };
+
+
 
 //------------------------------------------------------------------------------------------test-----------------------
 //-------RETRIVE ALL MEDIA DATA----------
@@ -232,10 +231,13 @@ const allMedia = async (req, res) => {
     const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
     const videos = await Video_Post.findAll({ where: { UserId: req.query.id } });
 
-    if (images.length === 0 && videos.length === 0) {
-      return res.status(404).send('No images or videos found for the given user ID');
-    }
+
     const combinedMedia = images.concat(videos);
+
+    if (images.length === 0 && videos.length === 0) {
+      console.log("No images or videos found for the given user ID.");
+      return res.status(200).send({ Userphoto, combinedMedia: [] });
+    }
 
     combinedMedia.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
@@ -289,9 +291,6 @@ const update_image_Post = async (req, res) => {
     res.status(500).send(error.message);
   }
 };
-
-
-
 
 const add_image_Post = async (req, res) => {
   try {
