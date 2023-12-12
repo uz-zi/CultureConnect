@@ -14,15 +14,16 @@ export default function UpdatePost() {
   const { id, caption, picture, type } = useLocation().state;
   
   const setData = () => {
-    setDescription(caption);
+    setDescription(caption || "");
     setFileType(type);
-    if(type==="image"){
-        setSelectedImage(`http://127.0.0.1:5000/${picture}`)
+    if (type === "image") {
+      setSelectedImage(`http://127.0.0.1:5000/${picture}`);
+      setSelectedVideo(null);
+    } else if (type === "video") {
+      setSelectedVideo(`http://127.0.0.1:5000/${picture}`);
+      setSelectedImage(null);
     }
-    else{
-        setSelectedVideo(`http://127.0.0.1:5000/${picture}`)
-    }
-  }
+  };
 
   function displaySelectedFile(event) {
     const file = event.target.files[0];
@@ -52,9 +53,9 @@ export default function UpdatePost() {
   };
 
   useEffect(() => {
+    console.log({ id, caption, picture, type }); // Add this line for debugging
     setData();
   }, []);
-
 
 
   const handleSubmit = async (event) => {
@@ -84,7 +85,7 @@ export default function UpdatePost() {
       const response = await axios.put(updateEndpoint, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-        },
+        }
       });
       console.log(response.data);
       if(response.data === "Successfully updated record for the image." || response.data === "Successfully updated record for the video."){

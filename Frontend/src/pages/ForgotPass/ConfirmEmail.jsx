@@ -3,7 +3,13 @@ import useModal from "../../Hooks/useModal";
 import ForgotPassOTP from "./ForgotPassOTP";
 import axios from "../../axios";
 
+import { useNavigate } from "react-router-dom";
+
 export default function () {
+
+
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [isOpen, toggleModal] = useModal();
 
@@ -51,6 +57,15 @@ export default function () {
             >
               Confirm
             </button>
+
+            <button
+             onClick={() => navigate('/user/signin')}
+              type="submit"
+              class="flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium bg-danger text-white"
+            >
+              Cancel
+            </button>
+
           </div>
         </div>
       </form>
