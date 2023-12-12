@@ -19,7 +19,7 @@ export default function AddPost() {
     if (!['image', 'video'].includes(uploadType)) {
       setError('Invalid upload type');
     } else {
-      setFileType(uploadType);
+      setFileType(uploadType); 
     }
   }, [uploadType]);
 
@@ -114,24 +114,20 @@ export default function AddPost() {
   };
 
   const previewStyle = {
-    width: '500px',
+    width: '100%',
     height: 'auto',
+    maxWidth: '100%',
   };
 
   const formcontentaddpost = {
-    display: 'block',
     width: '80%',
     padding: '0.5rem 1rem',
     fontSize: '0.9375rem',
     fontWeight: 400,
     lineHeight: 1.6,
     color: '#29292e',
-    marginLeft: '63px',
     backgroundColor: '#fff',
-    backgroundClip: 'padding-box',
     border: '1px solid #e5dfe4',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
     borderRadius: '5px',
   };
 
@@ -144,12 +140,12 @@ export default function AddPost() {
           backgroundSize: 'cover',
         }}
       >
-        <div className="row">
-          <div className="col-12 text-center">
+        <div className="row justify-content-center">
+          <div className="col-10 col-md-8 col-lg-6 text-center">
             <h1 className='mx-5 my-5 text-light' style={{fontSize: '38px'}}>Add Post</h1>
             <hr className='text-light bg-light'/>
             <form method="post" action="/upload" enctype="multipart/form-data" onSubmit={handleSubmit}>
-              <div className='my-5' style={{ border: '1px solid black', marginLeft: '420px', marginRight: '420px', paddingTop: '80px', paddingBottom: '40px', backgroundColor: "#FFFFF0", borderRadius: '5px 5px' }}>
+              <div className='my-5 py-4' style={{ border: '1px solid black', backgroundColor: "#FFFFF0", borderRadius: '5px' }}>
                 {(selectedImage || selectedVideo) && (
                   <div className="mb-4 d-flex justify-content-center">
                     {fileType === 'image' && <img src={selectedImage || greypic} alt="Selected" style={previewStyle} />}
@@ -183,7 +179,7 @@ export default function AddPost() {
                   </label>
                   <input 
                     type="text"
-                    className="form-control"
+                    className="form-control mx-auto"
                     style={formcontentaddpost}
                     placeholder="Enter Your Description"
                     aria-label="Description"
@@ -191,7 +187,7 @@ export default function AddPost() {
                     onChange={handleDescriptionChange}
                   />
                 </div>
-                <div className="gap-1 d-md-flex justify-content-md-center text-center">
+                <div className="text-center">
                   <button type="submit" className="btn btn-primary my-5 btn-lg text-dark">ADD POST</button>
                 </div>
               </div>

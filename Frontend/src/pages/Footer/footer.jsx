@@ -9,7 +9,7 @@ export default function footer() {
                 <div className="row gy-4 gy-lg-0">
                     <div className="col-12 col-md-6 col-lg-4">
                     <div className="widget">
-                        <h4 className="widget-title mb-4">Get in Touch</h4>
+                        <h4 className="widget-title mb-4"><b>Get in Touch</b></h4>
                         <address className="mb-4">Fast University Faisalabad Pakistan</address>
                         <p className="mb-1">
                         <a className="link-secondary text-decoration-none" href="tel:+15057922430">(505) 792-2430</a>
@@ -21,7 +21,7 @@ export default function footer() {
                     </div>
                     <div className="col-12 col-sm-6 col-md-3 col-lg-2">
                     <div className="widget">
-                        <h4 className="widget-title mb-4">Services</h4>
+                        <h4 className="widget-title mb-4"><b>Services</b></h4>
                         <ul className="list-unstyled">
                         <li className="mb-2">
                             <a href="#!" className="link-secondary text-decoration-none">Blogs</a>
@@ -40,7 +40,7 @@ export default function footer() {
                     </div>
                     <div className="col-12 col-sm-6 col-md-3 col-lg-2">
                     <div className="widget">
-                        <h4 className="widget-title mb-4">Company</h4>
+                        <h4 className="widget-title mb-4"><b>Company</b></h4>
                         <ul className="list-unstyled">
                         <li className="mb-2">
                             <a href="#!" className="link-secondary text-decoration-none">About Us</a>
@@ -59,14 +59,14 @@ export default function footer() {
                     </div>
                     <div className="col-12 col-lg-4">
                     <div className="widget">
-                        <h4 className="widget-title mb-4">Become Our Working Member</h4>
+                        <h4 className="widget-title mb-4"> <b>Become Our Working Member</b> </h4>
                         <p className="mb-4">Click! And Enter the World of Diverse Culture.</p>
                         <form action="#!">
                         <div className="row gy-4">
                             
                             <div className="col-12">
                             <div className="d-grid">
-                                <button className="btn btn-primary" type="submit">Get Started With Us</button>
+                                <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 22}}>Get Started With Us</a>
                             </div>
                             </div>
                         </div>

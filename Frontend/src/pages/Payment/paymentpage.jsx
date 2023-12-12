@@ -5,12 +5,13 @@ export default function paymentpage() {
     <div>
       <div className="col-md-6 offset-md-3 mb-5">
         <span className="anchor" id="formPayment"></span>
-        <hr className="my-5"/>
+        <h3 className="text-center my-3" style={{fontSize: "38px"}}>PAYMENT</h3>
+        <hr className="mb-5"/>
 
 
         <div className="card card-outline-secondary">
             <div className="card-body">
-                <h3 className="text-center">Credit Card Payment</h3>
+                <h3 className="text-center mb-3" style={{fontSize: "32px"}}>Credit Card Payment</h3>
                 <hr/>
                 <div className="alert alert-info p-2 pb-3">
                     <a className="close font-weight-normal initialism" data-dismiss="alert" href="#"><samp>×</samp></a> 
@@ -70,11 +71,11 @@ export default function paymentpage() {
                     </div>
                     <hr/>
                     <div className="form-group row">
-                        <div className="col-md-6">
+                        <div className="col-md-6 mt-3">
                             <button type="reset" className="btn btn-default btn-lg btn-block">Cancel</button>
                         </div>
-                        <div className="col-md-6">
-                            <button type="submit" className="btn btn-success btn-lg btn-block">Submit</button>
+                        <div className="col-md-6 mt-3" >
+                        <a href="#!" className="btn bsb-btn-2xl btn-success " style={{fontSize: 20}}>Submit</a>
                         </div>
                     </div>
                 </form>

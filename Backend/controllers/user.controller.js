@@ -79,7 +79,6 @@ const deleteImagePost = async (req, res) => {
   }
 };
 
-
 const deleteVideoPost = async (req, res) => {
   try {
     await sequelize.sync();

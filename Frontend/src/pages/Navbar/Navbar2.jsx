@@ -1,84 +1,64 @@
 import React from 'react'
 import logo from "../../assets/logo.png";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../Navbar/Navbar2.css'
+import pic12 from "../../assets/light11.jpg"
+import { useNavigate } from "react-router-dom";
+
+
+
 export default function Navbar2() {
-  return (
-    <div>
-      <div style={{ backgroundColor: '#FEFBEA', paddingBottom: 5 }} className='navbody'>
-          <nav className="navbar navbar-expand-lg  mb-lg-1">
-            <a className="navbar-brand px-lg-5 px-sm-2 d-flex align-items-center" href="#">
-              <img style={{ width: 40 }} src={logo} alt="" />
-              <span
-                style={{
-                  paddingLeft: 5,
-                  fontFamily: 'Dancing Script, cursive',
-                  fontSize: 30,
-                  backgroundImage: 'linear-gradient(to right, green, red, purple)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontWeight: 'bold'
-                }}
-              >
-                Culture Connect
-              </span>
-            </a>
+
+  const navigate = useNavigate();
+
+
+    const textStyle = {
+      position: 'absolute',
+      top: '50%',
+      left: '20px',
+      transform: 'translateY(-50%)',
+      color: 'white',
+      zIndex: 1,
+    };
+  
+    return (
+      <div style={{
+        padding: '0px',
+        margin: '0px',
+        textDecoration: 'none',
+        listStyle: 'none',
+        boxSizing: 'border-box',
+      }}>
+        <div style={{fontFamily: 'montserrat'}}>
+          <nav id='my-nav1'>
+          <input type="checkbox" id="check1"/>
+            <label for="check" class="checkbtn" id='checkbtnn1'>
+              <i class="fas fa-bars"></i>
+            </label>
+            <label id="my-logo1">CultureConnect</label>
+  
+            <ul id='ul-design1' >
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Homepage')} >Blogs</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/socialhomepage')}>SocialMedia</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Nativeservices')}>Services</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Feedback')}>Feedback</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/chatbox')}>Chatbot</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/gpt')}>Chatbox</a></li>
+              {/* <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Landing')}>Logout</a></li> */}
               
-            <div style={{
-            
-             height: '50px',
-             background: '#FEFBEA',
-             display: 'flex',
-             justifyContent: 'center',
-             alignItems: 'center',
-             padding: '0 0px',
-          }}>
-            <input type="text" style={{width: '300px', height: '38px', borderRadius: '25px', paddingLeft: "8px", }} placeholder="Search "/>
-            <button type="button"><ion-icon style={{fontSize:"38px", marginLeft: "3px", marginTop: '7px'}} name="mic-circle"></ion-icon></button>
-          </div>
-
-
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarTogglerDemo02"
-              aria-controls="navbarTogglerDemo02"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
-
-            <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
-              <ul className="navbar-nav ms-auto mb-2 mb-lg-0 mx-5">
-                <li className="nav-item">
-                  <a className="navlink nav-link mx-2 my-3" style={{fontSize:'22px',fontFamily: "serif"}} href="#">
-                    Blogs
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="navlink nav-link mx-2 my-3" style={{fontSize:'22px',fontFamily: "serif"}} href="#">
-                    Social Media
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="navlink nav-link mx-2 my-3" style={{fontSize:'22px',fontFamily: "serif"}} href="#">
-                    Services
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="navlink nav-link mx-2 my-3" style={{fontSize:'22px',fontFamily: "serif"}} href="#">
-                    Feedback
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="navlink nav-link mx-2 my-3" style={{fontSize:'22px',fontFamily: "serif"}} href="#">
-                  <button type="button" class="btn btn-danger">Logout</button>
-                  </a>
-                </li>
-              </ul>
-            </div>
+            </ul>
           </nav>
-        </div>
-    </div>
+          <section id='nav-sec-pic1'>
+            <img src="" alt="" />
+             <div style={textStyle} className='px-lg-5'>
+                <h1 className='mb-3 mt-5' style={{fontSize: 24,paddingTop:'240px'}}> Connecting Cultures <br></br>
+                  Bridging Borders <br></br>
+                  Embrace Unity.</h1>
+                <p className='py-lg-3' style={{fontSize: 18,}} >Lorem ipsum dolor sit amet, consectetur adipisicing <br /> elit. Nam optio dicta accusantium magnam <br /> sint repudiandae, consectetur quasi iste aliquam id?</p>
+              </div>
+          </section>
+  
+      </div>
+      </div>
   )
 }

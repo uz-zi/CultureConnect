@@ -108,8 +108,10 @@ export default function UpdatePost() {
   };
 
   const formcontentaddpost = {
-    display: "block",
+    
     width: "80%",
+    maxWidth:'500px',
+    margin: "0 auto",
     padding: "0.5rem 1rem",
     fontSize: "0.9375rem",
     fontWeight: 400,
@@ -117,10 +119,7 @@ export default function UpdatePost() {
     color: "#29292e",
     marginLeft: "63px",
     backgroundColor: "#fff",
-    backgroundClip: "padding-box",
     border: "1px solid #e5dfe4",
-    WebkitAppearance: "none",
-    MozAppearance: "none",
     borderRadius: "5px",
   };
 
@@ -133,8 +132,8 @@ export default function UpdatePost() {
           backgroundSize: "cover",
         }}
       >
-        <div className="row">
-          <div className="col-12 text-center">
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-8 col-lg-6 text-center">
             <h1 className="mx-5 my-5 text-light" style={{ fontSize: "38px" }}>
               Update Post
             </h1>
@@ -149,12 +148,9 @@ export default function UpdatePost() {
                 className="my-5"
                 style={{
                   border: "1px solid black",
-                  marginLeft: "420px",
-                  marginRight: "420px",
-                  paddingTop: "80px",
-                  paddingBottom: "40px",
+                  padding: '80px 20px 40px',
                   backgroundColor: "#FFFFF0",
-                  borderRadius: "5px 5px",
+                  borderRadius: "5px",
                 }}
               >
                 {(selectedImage || selectedVideo) && (
@@ -213,6 +209,7 @@ export default function UpdatePost() {
                   <button
                     type="submit"
                     className="btn btn-primary my-5 btn-lg text-dark"
+                    style={{ width: "100%" }}
                   >
                     UPDATE POST
                   </button>

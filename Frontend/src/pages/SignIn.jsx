@@ -43,6 +43,12 @@ function signin() {
     if (!emailRegex.test(email)) {
       alert('Please enter a valid Gmail address (e.g., example@gmail.com).');
       return; // Do not proceed with signup
+      
+    }
+
+    if (firstname.length < 3 || lastname.length < 3 || name.length < 3) {
+      alert('Name should have atleast 3 characters.');
+      return; // Do not proceed with signup if validation fails
     }
 
     // Password must have at least 6 characters, 1 alphabetic, 1 special character, and 1 numeric
@@ -91,7 +97,7 @@ function signin() {
           roles: response.data.roles
         }
         localStorage.setItem('user', JSON.stringify(userInfo));
-        navigate('/user/userprofile');
+        navigate('/user/Homepage');
       }
       else if (response.status === 401) {
         alert('Invalid Credentials!');
