@@ -5,6 +5,7 @@ const sequelize = require("../config");
 const Post = sequelize.define("videoPost", {
   UserId: {
     type: DataTypes.INTEGER,
+    allowNull: false
   },
   Captions: {
     type: DataTypes.STRING

@@ -39,7 +39,6 @@ function signin() {
   };
 
   const handleSignup = async () => {
-    // Validate email format (Gmail address)
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     if (!emailRegex.test(email)) {
       alert('Please enter a valid Gmail address (e.g., example@gmail.com).');

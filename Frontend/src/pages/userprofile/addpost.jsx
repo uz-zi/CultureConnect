@@ -8,18 +8,18 @@ export default function AddPost() {
   const [description, setDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [fileType, setFileType] = useState(null); // State to keep track of the selected file type
+  const [fileType, setFileType] = useState(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const uploadType = location.state?.uploadType; // 'image' or 'video'
+  const uploadType = location.state?.uploadType;
 
   useEffect(() => {
     if (!['image', 'video'].includes(uploadType)) {
       setError('Invalid upload type');
     } else {
-      setFileType(uploadType); // Set the fileType based on the uploadType
+      setFileType(uploadType);
     }
   }, [uploadType]);
 
@@ -61,6 +61,10 @@ export default function AddPost() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+  if (!selectedImage && !selectedVideo) {
+    alert('No file chosen. Please select a file.');
+    return;
+  }
     const id = (JSON.parse(localStorage.getItem('user'))).id;
     console.log(id);
     const formData = new FormData();
