@@ -12,7 +12,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(#009688 0%, #009688 130px, #d9dbd5 130px, #d9dbd5 100px);
+    background-color: #bb4d00;
 }
   
 .container1{
@@ -20,7 +20,7 @@
     width: 1600px;
     max-width: 100%;
     height: calc(100vh - 40px);
-    background: #e5ddd5;
+    background: #000;
     box-shadow: 0 1px 1px 0 rgb(0, 0, 0, 0.06), 0 2px 5px 0 rgb(0, 0, 0, 0.06);
     display: flex;
 }
@@ -40,18 +40,7 @@
     border-right: 1px solid rgb(0, 0, 0, 0.2);
 }
   
-/*
-.container1 .rightside2::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url(../../assets/pattern.png);
-    opacity: 0.07; 
-}
-*/
+
 
 .header1{
     position:relative;

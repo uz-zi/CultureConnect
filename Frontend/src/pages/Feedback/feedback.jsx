@@ -21,7 +21,7 @@ export default function feedback() {
                             <div className="row gy-4 gy-xl-5 p-4 p-xl-5">
                             <div className="dropdown col-12">
                                 <label for="feedback" className="form-label">Feedback <span className="text-danger">*</span></label><br />
-                                <select class="form-select bg-danger" aria-label="Default select example">
+                                <select class="form-select" aria-label="Default select example">
                                 <option selected>Select Issue / Report</option>
                                 <option value="1">Hate Speech</option>
                                 <option value="2">Nudity or Sexual Content</option>
@@ -39,7 +39,7 @@ export default function feedback() {
                             </div>
                             <div className="col-12">
                                 <div className="d-grid">
-                                <button className="btn btn-primary btn-lg" type="submit">Submit</button>
+                                <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 20}}>Submit</a>
                                 </div>
                             </div>
                             </div>

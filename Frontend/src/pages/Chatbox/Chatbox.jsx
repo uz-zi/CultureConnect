@@ -17,10 +17,10 @@ export default function Chatbox() {
     <div className='body'>
         <div className="container" style={{
             position: 'relative',
-            width: '1396px', // Corrected typo in 'bpx' to 'px'
+            width: '1396px', 
             maxWidth: '100%',
             height: 'calc(100vh - 40px)',
-            background: '#e5ddd5',
+            background: '#fbba72',
             boxShadow: '0 1px 1px 0 rgba(0, 0, 0, 0.06), 0 2px 5px 0 rgba(0, 0, 0, 0.06)',
             display: 'flex',
         }}>
@@ -30,7 +30,7 @@ export default function Chatbox() {
                       position: 'relative',
                       width: '100%',
                       height: '60px',
-                      background: '#ededed',
+                      background: '#fbba72',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -247,7 +247,7 @@ export default function Chatbox() {
                       position: 'relative',
                       width: '100%',
                       height: '60px',
-                      background: '#ededed',
+                      background: '#fbba72',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',

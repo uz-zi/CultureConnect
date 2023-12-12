@@ -45,9 +45,8 @@ export default function addblog() {
     
                 <form className="file-upload">
                   <div className="row mb-5 gx-5">
-                    <div className="col-xxl-8 mb-5 mb-xxl-0">
+                    <div className="col-md-8 mb-5 mb-xxl-0">
                       <form method="post" action="/upload" encType="multipart/form-data">
-                        {/* Your form fields */}
                         <div className="bg-secondary-soft px-4 py-5 rounded" style={{backgroundColor: 'rgba(208, 212, 217, 0.1) !important',    borderRadius: '5px !important', paddingTop: '3rem !important' , paddingBottom: '3rem !important', paddingRight: '1.5rem !important', paddingLeft: '1.5rem !important'}}>
                                         <div className="row g-3">
                                             
@@ -66,7 +65,7 @@ export default function addblog() {
                                     </div>
                       </form>
                     </div>
-                    <div className="col-xxl-4">
+                    <div className="col-md-4">
                         <br />
                     <h3 className="mb-4 mt-0 text-center text-dark" style={{fontSize: '38px'}}>Title Picture</h3>
                       <div className="mb-4 d-flex justify-content-center">
@@ -74,11 +73,11 @@ export default function addblog() {
                           id="selectedImage1"
                           src={pic1}
                           alt="example placeholder"
-                          style={{ width: '450px', height: '300px' }} // Use object syntax for inline styles
+                          style={{ width: '450px', height: '300px' }} 
                         />
                       </div>
                       <div className="d-flex justify-content-center">
-                        <div className="btn btn-primary btn-rounded">
+                        <div className="btn btn-primary btn-rounded mb-5">
                           <label className="form-label text-white m-1" htmlFor="customFile1">
                             Choose file
                           </label>
@@ -86,7 +85,7 @@ export default function addblog() {
                             type="file"
                             className="form-control d-none"
                             id="customFile1"
-                            onChange={(event) => displaySelectedImage(event, 'selectedImage1')} // Correct usage of onchange
+                            onChange={(event) => displaySelectedImage(event, 'selectedImage1')} 
                           />
                         </div>
                       </div>
@@ -95,7 +94,7 @@ export default function addblog() {
                     <div className="col-xxl-12 mb-5 mb-xxl-0">
                       {/* Second file upload section */}
                       <hr className="text-dark mx-5" />
-                      <h4 className="mb-4 mt-0 text-center text-dark" style={{fontSize: '38px'}}>Content Picture</h4>
+                      <h4 className="mb-4 mt-5 text-center text-dark" style={{fontSize: '38px'}}>Content Picture</h4>
                       <div className="mb-4 d-flex justify-content-center">
                         <img
                           id="selectedImage2"

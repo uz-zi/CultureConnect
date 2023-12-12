@@ -14,9 +14,9 @@ export default function aboutus() {
             <hr className="w-50 mx-auto mb-5 mb-xl-9 border-dark-subtle text-dark"/>
             <div className="col-12 col-md-10 col-lg-8 my-5">
         
-                <h1 className="mb-3 mb-xl-4 text-uppercase"> <b>About Us</b>  </h1>
+                <h1 className="mb-3 mb-xl-4 text-uppercase" style={{fontSize: 36,}}> <b>About Us</b>  </h1>
                 <h5 className="display-5 mb-4">Our journey began with a dream of redefining how the world perceives Culture.</h5>
-                <button type="button" className="btn btn-lg btn-primary mb-3 mb-md-4 mb-xl-5">Discover More</button>
+                <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 25}}>Discover More</a>
             </div>
             </div>
         </div>
@@ -123,10 +123,10 @@ export default function aboutus() {
                 <div className="col-12 col-lg-5">
                     <div className="row">
                     <div className="col-12 col-xl-11">
-                        <h1 className="mb-3 mb-xl-4 text-uppercase "> <b>Our Services</b> </h1>
+                        <h1 className="mb-3 mb-xl-4 text-uppercase " style={{fontSize: 36,}}> <b>Our Services</b> </h1>
                         <h2 className="display-5 mb-3 mb-xl-4">We are giving you perfect solutions with our proficient services.</h2>
                         <p className="mb-3 mb-xl-4">Our comprehensive suite of services is designed to meet your every need and help you thrive in today's dynamic business landscape. Contact us today to embark on a journey of growth, innovation, and unparalleled support. Your success is our priority.</p>
-                        <a href="#!" className="btn bsb-btn-2xl btn-primary rounded-pill">More Details</a>
+                        <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 25}}>Discover More</a>
                     </div>
                     </div>
                 </div>

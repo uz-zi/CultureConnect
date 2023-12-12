@@ -15,28 +15,28 @@ export default function chatbot() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(#009688 0%, #009688 130px, #d9dbd5 130px, #d9dbd5 100px)',
+        backgroundImage: 'linear-gradient(#ca5310 0%, #ca5310 130px, #d9dbd5 130px, #d9dbd5 100px)',
     }}>
       <div className="container" style={{
         position: 'relative',
         width: '1600px',
         maxWidth: '100%',
         height: 'calc(100vh - 40px)',
-        background: '#e5ddd5',
+        background: '#fbba72',
         boxShadow: '0 1px 1px 0 rgb(0, 0, 0, 0.06), 0 2px 5px 0 rgb(0, 0, 0, 0.06)',
         display: 'flex',
     }}>
         <div className="leftside" style={{
              position: 'relative',
              flex: '20%',
-             background: '#000000',
+             background: '#691e06',
              borderRight: '1px solid #000',
         }}>
             <div className="header" style={{
                 position: 'relative',
                 width: '100%',
                 height: '60px',
-                background: '#ededed',
+                background: '#fbba72',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -79,14 +79,14 @@ export default function chatbot() {
         <div className="rightside" style={{
             position: 'relative',
             flex: '80%',
-            background: '#FFFFFF',
+            background: '#FFF',
             borderRight: '1px solid rgba(0, 0, 0, 0.2)',
         }}>
                 <div className="header" style={{
                     position: 'relative',
                     width: '100%',
                     height: '60px',
-                    background: '#faf3f3f2',
+                    background: '#fbba72',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -123,7 +123,7 @@ export default function chatbot() {
                     position: 'relative',
                     width: '100%',
                     height: '60px',
-                    background: '#faf3f3f2',
+                    background: '#fbba72',
                     padding: '15px',
                     display: 'flex',
                     justifyContent: 'space-between',

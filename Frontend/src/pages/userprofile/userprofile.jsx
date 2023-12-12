@@ -7,7 +7,6 @@ import logo from "../../assets/logo.png";
 import pic1 from "../../assets/profileIcon.png";
 import pic2 from "../../assets/profileIcon.png";
 
-
 export default function userprofile() {
   const [bannerImage, setBannerImage] = useState(pic1);
   const [profileImage, setProfileImage] = useState(pic2);
@@ -16,18 +15,25 @@ export default function userprofile() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
+  const navigateToHomepage = () => {
+    navigate("/user/Homepage");
+  };
+
+  const navigateToUserProfile = () => {
+    navigate("/user/userprofile");
+  };
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
   const handleClick = (choice) => {
-    navigate('/user/Social_add_post', { state: { uploadType: choice } });
+    navigate("/user/Social_add_post", { state: { uploadType: choice } });
   };
 
   const handleEdit = () => {
     navigate("/user/Updtae_prfile");
   };
-  
 
   const handleDelete = async (id, image, video) => {
     console.log("Deleting post with id:", id, image, video);
@@ -59,15 +65,15 @@ export default function userprofile() {
   };
 
   const handleEditPost = (id, caption, picture, type) => {
-    navigate('/user/update_post', {
-        state: {
-            id,
-            caption,
-            picture,
-            type
-        }
-    })
-  }
+    navigate("/user/update_post", {
+      state: {
+        id,
+        caption,
+        picture,
+        type,
+      },
+    });
+  };
 
   useEffect(() => {
     async function getInfo() {
@@ -131,18 +137,13 @@ export default function userprofile() {
                   <div className="tb">
                     <span className="td">
                       <i className="material-icons">
-                        <ion-icon name="home-outline"></ion-icon>
-                      </i>
-                    </span>
-                    <span className="td">
-                      <i className="material-icons">
-                        <ion-icon name="person-circle-outline"></ion-icon>
+                        <ion-icon name="home-outline" onClick={navigateToHomepage}></ion-icon>
                       </i>
                     </span>
                   </div>
                 </div>
                 <div className="td">
-                  <a href="#" id="p-link">
+                  <a href="#" id="p-link" onClick={navigateToUserProfile}>
                     <img src={profileImage} />
                   </a>
                 </div>
@@ -196,18 +197,6 @@ export default function userprofile() {
                         </i>
                         <span>FRIENDS</span>
                       </div>
-                      <div className="td">
-                        <i className="material-icons">
-                          <ion-icon name="images-outline"></ion-icon>
-                        </i>
-                        <span>PHOTOS</span>
-                      </div>
-                      <div className="td">
-                        <i className="material-icons">
-                          <ion-icon name="person-outline"></ion-icon>
-                        </i>
-                        <span>ABOUT</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -221,13 +210,13 @@ export default function userprofile() {
                       </i>
                       <span>Make Post</span>
                     </div>
-                    <div className="td" onClick={() => handleClick('image')}>
+                    <div className="td" onClick={() => handleClick("image")}>
                       <i className="material-icons">
                         <ion-icon name="camera-outline"></ion-icon>
                       </i>
                       <span>Photo</span>
                     </div>
-                    <div className="td" onClick={() => handleClick('video')}>
+                    <div className="td" onClick={() => handleClick("video")}>
                       <i className="material-icons">
                         <ion-icon name="videocam-outline"></ion-icon>
                       </i>
@@ -243,12 +232,8 @@ export default function userprofile() {
                 </div>
                 <div id="c-c-main">
                   <div className="tb">
-                    <div className="td" id="p-c-i">
-                      <img src={profileImage} alt="Profile pic" />
-                    </div>
-                    <div className="td" id="c-inp">
-                      <input type="text" placeholder="What's on your mind?" />
-                    </div>
+                    {/* //--------------------------------------------------------------------------------- */}
+                    <div></div>
                   </div>
                 </div>
               </div>
@@ -316,14 +301,14 @@ export default function userprofile() {
                               }}
                             >
                               <button
-                              onClick={() =>
-                                handleEditPost(
-                                  post.id,
-                                  post.img_caption || post.Captions,
-                                  post.picture || post.Video,
-                                  post.img_caption? "image" : "video"
-                                )
-                              }
+                                onClick={() =>
+                                  handleEditPost(
+                                    post.id,
+                                    post.img_caption || post.Captions,
+                                    post.picture || post.Video,
+                                    post.img_caption ? "image" : "video"
+                                  )
+                                }
                               >
                                 <h5 style={{ fontSize: "10px" }}>
                                   Update Post

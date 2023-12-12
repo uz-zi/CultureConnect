@@ -12,12 +12,12 @@ export default function EditProfile() {
   const [profilePic, setProfilePic] = useState(pic1);
   const [bannerPic, setBannerPic] = useState(pic1);
   const navigate = useNavigate();
+  const [phoneError, setPhoneError] = useState(false);
 
   // Styles
   const formcontent = {
     display: "block",
-    width: "100%",
-    padding: "0.5rem 1rem",
+    padding: '0.5rem 1rem',
     fontSize: "0.9375rem",
     fontWeight: 400,
     lineHeight: 1.6,
@@ -50,7 +50,7 @@ export default function EditProfile() {
       }
     }
   };
-
+  
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
   };
@@ -64,8 +64,26 @@ export default function EditProfile() {
   };
 
   const handlePhoneNumberChange = (event) => {
-    setPhoneNumber(event.target.value);
-  };
+    const value = event.target.value;
+    const phoneRegex = /^03\d{9}$/;
+
+    // Set the phone number in the state regardless of validation
+    setPhoneNumber(value);
+
+    // Check if the phone number doesn't start with 03 and its length is not zero
+    if (!value.startsWith("03") && value.length !== 0) {
+        setPhoneError(true);
+        return; // Stop further execution if this condition is met
+    }
+
+    // Validate against the regex
+    if (phoneRegex.test(value) || value === "") {
+        setPhoneError(false);
+    } else {
+        setPhoneError(true);
+    }
+};
+
 
   useEffect(() => {
     async function getInfo() {
@@ -109,6 +127,25 @@ export default function EditProfile() {
       formData.append("lname", lastName);
       formData.append("pnum", phoneNumber);
 
+      const phoneRegex = /^03\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+        alert("Phone number must start with 03 and be 11 digits long.");
+        return; 
+    }
+
+      if (firstName.length < 3) {
+        alert('Name should have atleast 3 characters.');
+        return; // Do not proceed with the update if validation fails
+      }
+      if (lastName.length < 3) {
+        alert('Name should have atleast 3 characters.');
+        return; // Do not proceed with the update if validation fails
+      }
+      if (nickName.length < 3) {
+        alert('Name should have atleast 3 characters.');
+        return; // Do not proceed with the update if validation fails
+      }
+
       const profileImageElement = document.getElementById("customFile1");
       const coverImageElement = document.getElementById("customFile2");
 
@@ -145,23 +182,23 @@ export default function EditProfile() {
   }
 
   return (
-    <div style={{ marginTop: "20px", color: "#9b9ca1" }}>
-      <div className="container-fluid" style={{ backgroundColor: "#D3D3D3" }}>
+    <div style={{ marginTop: "0px", color: "#9b9ca1", backgroundColor: "#D3D3D3" }}>
+      <div className="container-fluid mx-2">
         <div className="row">
-          <div className="col-12">
-            <div className="my-5 text-dark">
-              <h3 style={{ fontSize: "38px" }}>My Profile</h3>
+          <div className="col-lg-12">
+            <div className="my-5 mx-2 text-dark text-center">
+              <h3 style={{ fontSize: "48px" }}>My Profile</h3>
               <hr />
             </div>
 
             <form className="file-upload">
-              <div className="row mb-5 gx-5">
-                <div className="col-xxl-8 mb-5 mb-xxl-0">
+              <div className="row gx-2">
+                <div className="col-md-7">
                   <div
                     className="bg-secondary-soft px-4 py-5 rounded mx-5"
                     style={formcontent}
                   >
-                    <div className="row g-3">
+                    <div className="g-3 mx-5">
                       <h4
                         className="mb-4 mt-0 text-dark"
                         style={{ fontSize: "38px" }}
@@ -169,7 +206,7 @@ export default function EditProfile() {
                         Contact detail
                       </h4>
                       <div className="col-md-12 text-dark">
-                        <label className="form-label">First Name *</label>
+                        <label className="form-label mt-3">First Name *</label>
                         <input
                           type="text"
                           className="form-control"
@@ -181,7 +218,7 @@ export default function EditProfile() {
                         />
                       </div>
                       <div className="col-md-12 text-dark">
-                        <label className="form-label">Last Name *</label>
+                        <label className="form-label mt-3">Last Name *</label>
                         <input
                           type="text"
                           className="form-control"
@@ -193,7 +230,7 @@ export default function EditProfile() {
                         />
                       </div>
                       <div className="col-md-12 text-dark">
-                        <label className="form-label">Nick Name *</label>
+                        <label className="form-label mt-3">Nick Name *</label>
                         <input
                           type="text"
                           className="form-control"
@@ -205,7 +242,7 @@ export default function EditProfile() {
                         />
                       </div>
                       <div className="col-md-12 text-dark">
-                        <label className="form-label">Phone number *</label>
+                        <label className="form-label mt-3">Phone number *</label>
                         <input
                           type="text"
                           className="form-control"
@@ -213,13 +250,14 @@ export default function EditProfile() {
                           placeholder="Enter Phone no."
                           aria-label="Phone number"
                           value={phoneNumber}
-                          onChange={handlePhoneNumberChange}
+                          onChange={handlePhoneNumberChange} 
                         />
+                        {phoneError && <div style={{ color: "#22C55E" }}>Enter number in format 03XXXXXXXXX.</div>}
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-xxl-4">
+                <div className="col-md-5">
                   <h4
                     className="mb-4 mt-5 text-center text-dark"
                     style={{ fontSize: "38px" }}
@@ -253,14 +291,14 @@ export default function EditProfile() {
                     </div>
                   </div>
                 </div>
-                <div className="col-xxl-12 mb-5 mb-xxl-0">
+                <div className="col-xxl-12 mb-5 col-lg-12 mb-xxl-0">
                   <h4
-                    className="mb-4 mt-0 text-center text-dark"
+                    className="mb-4 mt-5 text-center text-dark"
                     style={{ fontSize: "38px" }}
                   >
                     Banner Picture
                   </h4>
-                  <div className="mb-4 d-flex justify-content-center">
+                  <div className="mb-4 d-flex justify-content-center mr-3">
                     <img
                       id="selectedImage2"
                       src={bannerPic}
@@ -291,19 +329,17 @@ export default function EditProfile() {
               <div className="gap-1 d-md-flex justify-content-md-end text-center">
                 <button
                   type="button"
-                  className="btn btn-danger my-5 btn-lg"
-                  style={{ backgroundColor: "red" }}
+                  className="btn btn-danger my-5 btn-lg text-dark mx-2"
                   onClick={handleCancel}
                 >
-                  Cancel
+                 <b> Cancel </b>
                 </button>
                 <button
                   type="button"
-                  className="btn btn-primary my-5 btn-lg"
-                  style={{ backgroundColor: "blue" }}
+                  className="btn btn-primary text-dark my-5 btn-lg mx-2"
                   onClick={handleSubmission}
                 >
-                  Update profile
+                 <b> Update profile </b>
                 </button>
               </div>
             </form>
