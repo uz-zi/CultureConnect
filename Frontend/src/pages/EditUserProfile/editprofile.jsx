@@ -34,15 +34,23 @@ export default function EditProfile() {
   const displaySelectedImage = (event, setImage) => {
     const fileInput = event.target;
     if (fileInput.files && fileInput.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        setImage(e.target.result);
-      };
-      reader.readAsDataURL(fileInput.files[0]);
+      const file = fileInput.files[0];
+      const allowedExtensions = ["jpg", "jpeg", "png"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+  
+      if (!allowedExtensions.includes(fileExtension)) {
+        alert("Only pictures can be uploaded.");
+        fileInput.value = ""; 
+      } else {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          setImage(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
-  // Handlers for input change
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
   };

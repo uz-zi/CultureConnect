@@ -7,7 +7,8 @@ const Image = sequelize.define("imagePost", {
         type: DataTypes.STRING
       },
       UserID:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING,
+        allowNull: false
       },
       img_caption:{
         type:DataTypes.STRING

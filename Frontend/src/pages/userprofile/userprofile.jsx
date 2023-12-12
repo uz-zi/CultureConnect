@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo.png";
 import pic1 from "../../assets/profileIcon.png";
-import pic5 from "../../assets/img3.jpg";
 import pic2 from "../../assets/profileIcon.png";
+
 
 export default function userprofile() {
   const [bannerImage, setBannerImage] = useState(pic1);
@@ -73,23 +73,24 @@ export default function userprofile() {
     async function getInfo() {
       try {
         const id = JSON.parse(localStorage.getItem("user")).id;
-        console.log(id);
         const response = await axios.get("/user/socialdata", {
-          params: {
-            id: id,
-          },
+          params: { id: id },
         });
-        console.log(response);
-        setName(response.data.Userphoto[0].Name);
-        setProfileImage(
-          `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
-        );
-        setBannerImage(
-          `http://127.0.0.1:5000/${response.data.Userphoto[0].Cover_photo}`
-        );
-        console.log(response.data.combinedMedia);
+
+        // Update state only if valid images are received
+        if (response.data.Userphoto[0].Profile_pic) {
+          setProfileImage(
+            `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
+          );
+        }
+        if (response.data.Userphoto[0].Cover_photo) {
+          setBannerImage(
+            `http://127.0.0.1:5000/${response.data.Userphoto[0].Cover_photo}`
+          );
+        }
+
         setPosts(response.data.combinedMedia);
-        console.log("This is posts state", posts);
+        setName(response.data.Userphoto[0].Name);
       } catch (error) {
         console.log(error);
       }
