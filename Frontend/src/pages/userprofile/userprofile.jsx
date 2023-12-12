@@ -65,12 +65,13 @@ export default function userprofile() {
   };
 
   const handleEditPost = (id, caption, picture, type) => {
+    const determinedType = picture.includes('.png') || picture.includes('.jpg') ? 'image' : 'video';
     navigate("/user/update_post", {
       state: {
         id,
         caption,
         picture,
-        type,
+        type: determinedType,
       },
     });
   };
@@ -83,7 +84,6 @@ export default function userprofile() {
           params: { id: id },
         });
 
-        // Update state only if valid images are received
         if (response.data.Userphoto[0].Profile_pic) {
           setProfileImage(
             `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`

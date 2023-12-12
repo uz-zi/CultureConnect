@@ -470,7 +470,7 @@ const signInUser = async (req, res) => {
       console.error("Invalid Credentials!");
       res.status(401).send("Invalid Credentials");
     } else {
-      const token = jwtToken.sign({ Role: "user" }, 'dfghjk');
+      const token = jwtToken.sign({ role: "user" }, 'dfghjk');
 
       const user_ID = await User.findOne({
         attributes: ['id'],

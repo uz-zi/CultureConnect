@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../Navbar/Navbar2.css'
 import pic12 from "../../assets/light11.jpg"
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"
 
 
 
@@ -11,6 +12,19 @@ export default function Navbar2() {
 
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    // Perform logout actions, e.g., clear user session, redirect to login page
+    // For now, let's simulate a logout by redirecting to the login page
+    localStorage.removeItem("user");
+    Swal.fire({
+      title: "Done!",
+      text: "Logged Out Successfully.",
+      icon: "success"
+    });
+    console.log("Token has been Removed");
+    navigate('/user/signin');
+
+  };
 
     const textStyle = {
       position: 'absolute',
@@ -44,7 +58,7 @@ export default function Navbar2() {
               <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Feedback')}>Feedback</a></li>
               <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/chatbox')}>Chatbot</a></li>
               <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/gpt')}>Chatbox</a></li>
-              {/* <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/Landing')}>Logout</a></li> */}
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={handleLogout}>Logout</a></li>
               
             </ul>
           </nav>

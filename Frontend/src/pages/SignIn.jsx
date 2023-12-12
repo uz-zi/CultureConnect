@@ -39,16 +39,20 @@ function signin() {
   };
 
   const handleSignup = async () => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    if (!emailRegex.test(email)) {
-      alert('Please enter a valid Gmail address (e.g., example@gmail.com).');
-      return; // Do not proceed with signup
-      
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const cfdRegex = /^[a-z][0-9]{6}@cfd\.nu\.edu\.pk$/;
+
+    if (gmailRegex.test(email)) {
+    } else if (cfdRegex.test(email)) {
+    } else {
+        alert('Please enter a valid email address. (e.g., example@gmail.com or f000000@cfd.nu.edu.pk).');
+        return; 
     }
+    
 
     if (firstname.length < 3 || lastname.length < 3 || name.length < 3) {
       alert('Name should have atleast 3 characters.');
-      return; // Do not proceed with signup if validation fails
+      return;
     }
 
     // Password must have at least 6 characters, 1 alphabetic, 1 special character, and 1 numeric
@@ -144,8 +148,7 @@ function signin() {
         <div className="text-center">
           <h1 className="text-4xl font-bold" style={{ color: '#fff', textShadow: '16px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000', fontSize: '42px' }}>Welcome to cultureConnect!</h1>
           <p className="text-gray-500 text-lg mt-4" style={{ color: '#fff', textShadow: '16px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000' }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis
-            scelerisque elit ac purus varius ullamcorper.
+            Plateform to revive the culture of pakistan
           </p>
         </div>
       </div>
