@@ -82,7 +82,7 @@ function ForgotPassOTP({ onClose, isOpen }) {
                         className="inline-block align-baseline font-bold text-sm text-teal-500 hover:text-teal-800 ml-4"
                         href="#"
                     >
-                        Resend OTP
+                        
                     </a>
                 </div>
             </form>

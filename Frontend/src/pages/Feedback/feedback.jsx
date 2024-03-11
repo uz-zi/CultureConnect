@@ -34,6 +34,11 @@ export default function feedback() {
                             </div>
 
                             <div className="col-12">
+                            <label for="message" className="form-label">Link of Reported post <span className="text-danger">*</span></label>
+                            <textarea className="form-control" placeholder='Link' id="message" name="message" rows="7" required></textarea>
+                            </div>
+
+                            <div className="col-12">
                                 <label for="message" className="form-label">Message <span className="text-danger">*</span></label>
                                 <textarea className="form-control" placeholder='Enter briefly about the issue or Feedback' id="message" name="message" rows="7" required></textarea>
                             </div>

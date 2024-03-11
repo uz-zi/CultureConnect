@@ -121,29 +121,32 @@ export default function EditProfile() {
 
   const handleSubmission = async () => {
     try {
+
+      
       const formData = new FormData();
       formData.append("name", nickName);
       formData.append("fname", firstName);
       formData.append("lname", lastName);
       formData.append("pnum", phoneNumber);
 
+      const nameRegex = /^[A-Za-z]{3,}[0-9]*$/;
       const phoneRegex = /^03\d{9}$/;
     if (!phoneRegex.test(phoneNumber)) {
         alert("Phone number must start with 03 and be 11 digits long.");
         return; 
     }
 
-      if (firstName.length < 3) {
-        alert('Name should have atleast 3 characters.');
-        return; // Do not proceed with the update if validation fails
+      if (!nameRegex.test(firstName)) {
+        alert('First Name should start with at least 3 letters');
+        return;
       }
-      if (lastName.length < 3) {
-        alert('Name should have atleast 3 characters.');
-        return; // Do not proceed with the update if validation fails
+      if (!nameRegex.test(lastName)) {
+        alert('Last Name should start with at least 3 letters');
+        return;
       }
-      if (nickName.length < 3) {
-        alert('Name should have atleast 3 characters.');
-        return; // Do not proceed with the update if validation fails
+      if (!nameRegex.test(nickName)) {
+        alert('Nickname should start with at least 3 letters.');
+        return;
       }
 
       const profileImageElement = document.getElementById("customFile1");
