@@ -13,8 +13,6 @@ export default function Navbar2() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Perform logout actions, e.g., clear user session, redirect to login page
-    // For now, let's simulate a logout by redirecting to the login page
     localStorage.removeItem("user");
     Swal.fire({
       title: "Done!",

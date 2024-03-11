@@ -38,9 +38,16 @@ function signin() {
     setPhone(value);
   };
 
+
   const handleSignup = async () => {
+    const nameRegex = /^[A-Za-z]{3,}[0-9]*$/;
     const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     const cfdRegex = /^[a-z][0-9]{6}@cfd\.nu\.edu\.pk$/;
+
+    if (!nameRegex.test(firstname) || !nameRegex.test(lastname) || !nameRegex.test(name)) {
+      alert('Names should start with at least 3 letters');
+      return;
+    }
 
     if (gmailRegex.test(email)) {
     } else if (cfdRegex.test(email)) {
@@ -55,11 +62,10 @@ function signin() {
       return;
     }
 
-    // Password must have at least 6 characters, 1 alphabetic, 1 special character, and 1 numeric
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     if (!passwordRegex.test(password)) {
       alert('Please enter a valid password with at least 6 characters, including 1 alphabetic, 1 special character, and 1 numeric.');
-      return; // Do not proceed with signup
+      return;
     }
 
     try {
