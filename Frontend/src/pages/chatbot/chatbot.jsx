@@ -1,158 +1,122 @@
-import React from 'react'
 import logo from "../../assets/logo.png";
+import React, { useState, useRef, useEffect } from 'react';
+import axios from '../../axios'; // Make sure to import axios
+
+export default function Chatbot() {
+  const [messages, setMessages] = useState([]); // Stores all chat messages
+  const [newMessage, setNewMessage] = useState(''); // Stores the new message input by the user
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const chatContainerRef = useRef(null); // Ref for the chat container
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // Function to handle sending a message
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return; // Prevent sending empty messages
+    
+    const userMessage = { role: 'user', content: newMessage };
+
+    try {
+      // Update messages to include the user's message
+      setMessages(prevMessages => [...prevMessages, userMessage]);
+      setIsLoading(true); // Set loading state to true while waiting for response
+
+      const response = await axios.post('/user/gpt', { promptinput: newMessage });
+      const { response: botResponse, validationResponse } = response.data;
+
+      if (response.status === 200) {
+        // Display bot's response in chat
+        setMessages(prevMessages => [...prevMessages, { role: 'bot', content: botResponse }]);
+        setStatusMessage('');
+      } else {
+        // Display status message in chat and set statusMessage
+        let errorMessage = '';
+        switch (response.status) {
+          case 400:
+            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: ${validationResponse}`}])  ;
+            break;
+          case 401:
+            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Kindly please reenter your query`}])  ;
+            break;
+          case 500:
+            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `An error occurred. Kindly reenter your query`}])  ;
+            break;
+          default:
+            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Kindly be more specific`}])  ;
+        }
+        setMessages(prevMessages => [...prevMessages, { role: 'bot', content: errorMessage }]);
+        setStatusMessage(errorMessage);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    //   setStatusMessage('Kindly be more specific i can only answer pakistan related quries');
+    switch (error.response.status) {
+        case 400:
+          setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places.`}])  ;
+          break;
+        case 401:
+          setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Kindly please reenter your query`}])  ;
+          break;
+        case 500:
+          setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `An error occurred. Kindly reenter your query`}])  ;
+          break;
+        default:
+          setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Kindly be more specific`}])  ;
+      }
+    } finally {
+      setIsLoading(false); // Set loading state to false after response is received
+    }
+
+    setNewMessage(''); // Clear the input after sending
+  };
 
 
-export default function chatbot() {
+  // Scroll to bottom of chat container on messages update
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div style={{
-        margin: 0,
-        padding: 0,
-        boxSizing: 'border-box',
-        fontFamily: "'Open Sans', sans-serif",
-    }}>
-        <div className='body' style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        backgroundImage: 'linear-gradient(#bb4d00 0%, ##bb4d00 130px, #d9dbd5 130px, #d9dbd5 100px)',
-    }}>
-      <div className="container" style={{
-        position: 'relative',
-        width: '1600px',
-        maxWidth: '100%',
-        height: 'calc(100vh - 40px)',
-        background: '#cecaca',
-        boxShadow: '0 1px 1px 0 rgb(0, 0, 0, 0.06), 0 2px 5px 0 rgb(0, 0, 0, 0.06)',
-        display: 'flex',
-    }}>
-        <div className="leftside" style={{
-             position: 'relative',
-             flex: '20%',
-             background: '#faf9f7',
-             borderRight: '1px solid #000',
-        }}>
-            <div className="header" style={{
-                position: 'relative',
-                width: '100%',
-                height: '60px',
-                background: '#cecaca',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0 15px',
-            }}>
-                    <div className="userimg" style={{
-                        position: 'relative',
-                        width: '40px',
-                        height: '40px',
-                        overflow: 'hidden',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                    }}>
-                        <img src={logo} className="cover" style={{
-                            position: 'absolute',
-                            top: '0',
-                            left: '0',
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                        }} alt="User1" />
-                    </div>
-                    <div className="headtext">
-                        <h5><b>New Chat</b></h5>
-                    </div>
-                    <ul className='Nav_icons' style={{display: 'flex',}}>
-                        <li style={{
-                            display: 'flex',
-                            listStyle: 'none',
-                            cursor: 'pointer',
-                            color: '#51585c',
-                            fontSize: '1.5em',
-                            marginLeft: '15px',
-                            paddingTop: '17px',
-                        }}><ion-icon name="create-outline"></ion-icon></li>
-                    </ul>
-
-            </div>
+    <div className="py-2 w-[300px] min-h-[400px] max-h-[400px] bg-gray-300 to-cyan-800 rounded-lg z-10 fixed bottom-2 right-2 flex justify-center">
+      <div className="flex flex-col max-w-sm w-full p-2">
+        <div
+          ref={chatContainerRef}
+          className="flex-grow overflow-y-auto max-h-96 mb-4 py-4 container"
+        >
+          <div className="flex flex-col gap-4">
+            {messages.map((msg, index) => (
+              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`rounded-lg px-4 py-2 max-w-[80%] ${msg.role === 'user' ? 'bg-white text-black' : 'bg-blue-600 text-white'}`}>
+                  <p className="text-sm">{msg.content}</p>
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-center">
+                <div className="spinner-border text-blue-500" role="status">
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </div>
+            )}
+            {statusMessage && (
+              <div className="flex justify-center text-red-500">{statusMessage}</div>
+            )}
+          </div>
         </div>
-        <div className="rightside" style={{
-            position: 'relative',
-            flex: '80%',
-            background: '#FFF',
-            borderRight: '1px solid rgba(0, 0, 0, 0.2)',
-        }}>
-                <div className="header" style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '60px',
-                    background: '#cecaca',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0 15px',
-                }}>
-                    <div className="imgtext">
-                        <h5><b>CultureConnect Chatbot</b></h5>
-                    </div>
-                    
-                    <ul className='Nav_icons' style={{display: 'flex',}}>
-                        <li style={{
-                            display: 'flex',
-                            listStyle: 'none',
-                            cursor: 'pointer',
-                            color: '#51585c',
-                            fontSize: '1.5em',
-                            marginLeft: '15px',
-                            paddingTop: '17px',
-                        }}><ion-icon name="share-outline"></ion-icon></li>
-                    </ul>
-                </div>
-
-                <div className="chatBox" style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: 'calc(100% - 120px)',
-                    padding: '50px',
-                    overflowY: 'auto',
-                }}>
-                    
-                </div>
-
-                <div className="chatbox_input" style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '60px',
-                    background: '#cecaca',
-                    padding: '15px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderTop: '1px solid #000000',
-                }}>
-                    <input style={{
-                        position: 'relative',
-                        width: '95%',
-                        margin: '0 170px',
-                        padding: '7px 20px',
-                        border: '1px solid rgba(0, 0, 0, 0.06)',
-                        outline: 'none',
-                        borderRadius: '30px',
-                        fontSize: '1em',
-                    }} type="text" placeholder='Type a message'/>
-                    <ion-icon name="send-outline" style={{
-                          cursor: 'pointer',
-                          fontSize: '1.8em',
-                          color: '#51585c',
-                    }}></ion-icon>
-
-                </div>
-            </div>
+        <div className="flex justify-center items-center h-16">
+          <input
+            type="text"
+            className="border-2 border-gray-300 bg-white text-blue-500 placeholder:text-blue-500 rounded-lg p-2 w-full mr-2"
+            placeholder="Type a message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+          />
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded" onClick={handleSendMessage}>
+            Send
+          </button>
+        </div>
       </div>
     </div>
-    </div>
-    
-  )
+  );
 }
-
-

@@ -138,3 +138,12 @@
     border-radius: 30px;
     font-size: 1em;
 }
+
+.container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}

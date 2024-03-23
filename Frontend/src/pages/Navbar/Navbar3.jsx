@@ -4,6 +4,7 @@ import '../Navbar/Navbar3.css'; // Adjust the path to your CSS file
 import logo from '../../assets/logo.png';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"
+import axios from '../../axios';
 
 export default function Navbar3() {
   const [isChecked, setIsChecked] = useState(false);
@@ -11,8 +12,13 @@ export default function Navbar3() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Perform logout actions, e.g., clear user session, redirect to login page
-    // For now, let's simulate a logout by redirecting to the login page
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?.id;
+    axios.put('/user/logout', null, {
+      params: { id: userId }
+    })
+
     localStorage.removeItem("user");
     Swal.fire({
       title: "Done!",
@@ -59,8 +65,8 @@ export default function Navbar3() {
               Feedback
             </a>
           </li>
-          <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/chatbox')}>Chatbot</a></li>
-              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/gpt')}>Chatbox</a></li>
+          <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/allUsersProfile')}>AllUsers</a></li>
+              <li class='li-design1'><a class='my-nav-link1' href="#" onClick={() => navigate('/user/chatbox')}>Chatbox</a></li>
               <li class='li-design1'><a class='my-nav-link1' href="#" onClick={handleLogout}>Logout</a></li>
         </ul>
       </nav>

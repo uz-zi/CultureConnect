@@ -8,6 +8,8 @@ const path = require("path");
 const sequelizee = require("./config");
 const adminroute = require('./routes/admin.routes');
 const userroute = require('./routes/user.routes')
+const nativeroute = require('./routes/native.route')
+require('dotenv').config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -16,6 +18,7 @@ app.use(cors());
 
 app.use('/admin', adminroute)
 app.use('/user', userroute)
+app.use('/native', nativeroute)
 
 
 app.use((req, res, next) => {
@@ -34,8 +37,5 @@ sequelizee.sync().then(() => {
       console.log(`Server is running on port ${port}`);
     });
   });
-
-
-
 
 

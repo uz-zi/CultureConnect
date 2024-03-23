@@ -3,8 +3,15 @@ import axios from '../../axios';
 import greypic from '../../assets/grey.jpeg';
 import img1 from '../../assets/door.jpg';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { UserContext } from "../../Context/UserContext";
+import { useContext } from "react";
 
 export default function AddPost() {
+
+  const {user} = useContext(UserContext);
+  console.log('Users Role', user.roles);
+
+
   const [description, setDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -73,6 +80,22 @@ export default function AddPost() {
       formData.append('caption', description);
       formData.append('id', id);
 
+      if(user.roles == "native"){
+      try {
+        const response = await axios.post('/native/add_imagepost', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(response.data);
+        if(response.data==="Successfully added record for the uploaded image.")
+        {
+          navigate('/user/userprofile');
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    }else{
       try {
         const response = await axios.post('/user/add_imagepost', formData, {
           headers: {
@@ -87,11 +110,32 @@ export default function AddPost() {
       } catch (error) {
         console.error('Error uploading image:', error);
       }
+
+    }
+
+
     } else if (fileType === 'video') {
       formData.append('video', fileInputRef.current.files[0]);
       formData.append('text', description);
       formData.append('id', id);
 
+
+      if(user.roles == "native"){
+      try {
+        const response = await axios.post('/native/add_videopost', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(response.data);
+        if(response.data==="Successfully added record for the video.")
+        {
+          navigate('/user/userprofile');
+        }
+      } catch (error) {
+        console.error('Error uploading video:', error);
+      }
+    } else{
       try {
         const response = await axios.post('/user/add_videopost', formData, {
           headers: {
@@ -106,6 +150,8 @@ export default function AddPost() {
       } catch (error) {
         console.error('Error uploading video:', error);
       }
+
+    }
     }
   };
 

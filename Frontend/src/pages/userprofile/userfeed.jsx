@@ -1,14 +1,15 @@
-import React from "react";
 import "../userprofile/userprofile.css";
 import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "../../axios";
 import logo from "../../assets/logo.png";
-import pic2 from "../../assets/user.jpg";
+import pic2 from "../../assets/profileIcon.png";
 import pic6 from "../../assets/img5.jpg";
-import pic7 from "../../assets/img6.jpg";
-import pic9 from "../../assets/img8.jpg";
 
 export default function UserFeed() {
+  const [profileImage, setProfileImage] = useState(pic2);
   const navigate = useNavigate();
+  const [mappedMedia, setMappedMedia] = useState([]);
 
   const navigateToHomepage = () => {
     navigate("/user/Homepage");
@@ -16,6 +17,49 @@ export default function UserFeed() {
 
   const navigateToUserProfile = () => {
     navigate("/user/userprofile");
+  };
+
+  useEffect(() => {
+    async function getInfo() {
+      try {
+        const id = JSON.parse(localStorage.getItem("user")).id;
+        const response = await axios.get("/user/allsocialmediaposts", {
+          params: { id: id },
+        });
+
+        const users = response.data.Userphoto;
+        const combinedMedia = response.data.combinedMedia;
+
+        const mappedMedia = combinedMedia.map((media) => {
+          const user = users.find((user) => user.UserID === media.UserID);
+          return { ...media, UserPhoto: user };
+        });
+
+        setMappedMedia(mappedMedia);
+
+        console.log(response);
+        console.log(mappedMedia);
+        if (response.data.Userphoto[0].Profile_pic) {
+          setProfileImage(
+            `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
+          );
+        } else {
+          // Set the default profile image when Profile_pic is null
+          setProfileImage(pic2);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    getInfo();
+  }, []);
+
+
+  const navigateToOtherUserProfile = (userID) => {
+    navigate('/OtherUserProfile', { state: { UserID: userID } });
+
+    console.log("userid----------", userID)
   };
 
   return (
@@ -57,7 +101,7 @@ export default function UserFeed() {
                 </div>
                 <div className="td">
                   <a href="#" id="p-link" onClick={navigateToUserProfile}>
-                    <img src={pic2} />
+                    <img src={profileImage} />
                   </a>
                 </div>
               </div>
@@ -77,7 +121,7 @@ export default function UserFeed() {
                         <i className="material-icons">
                           <ion-icon name="albums-outline"></ion-icon>
                         </i>
-                        <span>TIMELINE</span>
+                        <span>Friends</span>
                       </div>
                       <div className="td" onClick={navigateToUserProfile}>
                         <i className="material-icons">
@@ -89,117 +133,74 @@ export default function UserFeed() {
                   </div>
                 </div>
               </div>
-              <div className="m-mrg" id="composer">
-                <div id="c-tabs-cvr">
-                  <div className="tb" id="c-tabs">
-                    <div className="td active">
-                      <i className="material-icons">
-                        <ion-icon name="menu-outline"></ion-icon>
-                      </i>
-                      <span>Make Post</span>
-                    </div>
-                    <div className="td">
-                      <i className="material-icons">
-                        <ion-icon name="camera-outline"></ion-icon>
-                      </i>
-                      <span>Photo</span>
-                    </div>
-                    <div className="td">
-                      <i className="material-icons">
-                        <ion-icon name="videocam-outline"></ion-icon>
-                      </i>
-                      <span>Video</span>
-                    </div>
-                    <div className="td">
-                      <i className="material-icons">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                      </i>
-                      <span>Life Event</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
               <div>
-                <div className="post">
-                  <div className="tb">
-                    <a href="#" className="td p-p-pic">
-                      <img src={pic6} alt="Rajeev's profile pic" />
+                {mappedMedia.map((post, index) => (
+                  <div key={post.id} className="post">
+                    <div className="tb">
+                    <a href="#" className="td p-p-pic" onClick={() => navigateToOtherUserProfile(post.UserID)}>
+                      <img
+                        src={
+                          post.UserPhoto.Profile_pic
+                            ? `http://127.0.0.1:5000/${post.UserPhoto.Profile_pic}`
+                            : pic2
+                        }
+                        alt={`${post.UserPhoto.Name}'s profile pic`}
+                      />
                     </a>
-                    <div className="td p-r-hdr">
-                      <div className="p-u-info">
-                        <a href="#">CultureConnect</a> shared a memory with{" "}
-                        <a href="#">Muhammad Ahmad</a>
-                      </div>
-                      <div className="p-dt">
-                        <i className="material-icons">
-                          <ion-icon name="calendar-outline"></ion-icon>
-                        </i>
-                        <span>December 4, 2023</span>
-                      </div>
-                    </div>
-                  </div>
-                  <a href="#" className="p-cnt-v">
-                    <img src={pic9} />
-                  </a>
-                  <div>
-                    <div className="p-acts">
-                      <div className="p-act like">
-                        <i className="material-icons" style={{ fontSize: 22 }}>
-                          <ion-icon name="heart"></ion-icon>
-                        </i>
-                        <span>25</span>
-                      </div>
-                      <div className="p-act comment">
-                        <i className="material-icons" style={{ fontSize: 22 }}>
-                          <ion-icon name="chatbox"></ion-icon>
-                        </i>
-                        <span>1</span>
+                      <div className="td p-r-hdr">
+                        <div className="p-u-info">
+                          <p>{post.img_caption || post.Captions}</p>
+                          <a href="#">{post.UserPhoto.Name}</a>
+                        </div>
+                        <div className="p-dt">
+                          <i className="material-icons">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                          </i>
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <br />
-              <div>
-                <div className="post">
-                  <div className="tb">
-                    <a href="#" className="td p-p-pic">
-                      <img src={pic6} alt="Rajeev's profile pic" />
+                    <a href="#" className="p-cnt-v">
+                      {post.picture && (
+                        <img
+                          src={`http://127.0.0.1:5000/${post.picture}`}
+                          alt="Post"
+                        />
+                      )}
+                      {post.Video && (
+                        <video
+                          controls
+                          src={`http://127.0.0.1:5000/${post.Video}`}
+                        />
+                      )}
                     </a>
-                    <div className="td p-r-hdr">
-                      <div className="p-u-info">
-                        <a href="#">CultureConnect</a> shared a memory with{" "}
-                        <a href="#">Muhammad Ahmad</a>
-                      </div>
-                      <div className="p-dt">
-                        <i className="material-icons">
-                          <ion-icon name="calendar-outline"></ion-icon>
-                        </i>
-                        <span>December 4, 2023</span>
-                      </div>
-                    </div>
-                  </div>
-                  <a href="#" className="p-cnt-v">
-                    <img src={pic7} />
-                  </a>
-                  <div>
-                    <div className="p-acts">
-                      <div className="p-act like">
-                        <i className="material-icons" style={{ fontSize: 22 }}>
-                          <ion-icon name="heart"></ion-icon>
-                        </i>
-                        <span>25</span>
-                      </div>
-                      <div className="p-act comment">
-                        <i className="material-icons" style={{ fontSize: 22 }}>
-                          <ion-icon name="chatbox"></ion-icon>
-                        </i>
-                        <span>1</span>
+                    <div>
+                      <div className="p-acts">
+                        <div className="p-act like">
+                          <i
+                            className="material-icons"
+                            style={{ fontSize: 22 }}
+                          >
+                            <ion-icon name="heart"></ion-icon>
+                          </i>
+                          <span>25</span>
+                        </div>
+                        <div className="p-act comment">
+                          <i
+                            className="material-icons"
+                            style={{ fontSize: 22 }}
+                          >
+                            <ion-icon name="chatbox"></ion-icon>
+                          </i>
+                          <span>1</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
+
               <div id="loading">
                 <i class="material-icons" style={{ fontSize: 30 }}>
                   <ion-icon name="refresh-circle-outline"></ion-icon>
@@ -213,4 +214,3 @@ export default function UserFeed() {
     </div>
   );
 }
-

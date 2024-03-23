@@ -2,24 +2,29 @@ import React, { useState } from "react";
 import useModal from "../../Hooks/useModal";
 import ForgotPassOTP from "./ForgotPassOTP";
 import axios from "../../axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { useNavigate } from "react-router-dom";
 
 export default function () {
-
-
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const { role } = location.state || {};
+  console.log("role----------", role);
   const [email, setEmail] = useState("");
-  const [isOpen, toggleModal] = useModal();
+  const [isOpen, setIsOpen] = useState(false); // Assuming a simple state management for modal visibility
+  const [userRole, setUserRole] = useState(role); // Managing user role state
+
+  const toggleModal = () => setIsOpen(!isOpen); // Toggle modal visibility
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const endpoint = role === "native" ? "/native/forgetpassword" : "/user/forgetpassword";
     try {
-      const response = await axios.post("/user/forgetpassword", { email });
+      const response = await axios.post(endpoint, { email });
       console.log(response);
       if (response.data === "Verification code sent to your email") {
-        toggleModal();
+        setUserRole(role); // Set the user role when opening the modal
+        toggleModal(); // Now we also have the role ready to be passed to the modal
       } else if (response.status === 404) {
         alert("Email not found");
       } else {
@@ -47,7 +52,7 @@ export default function () {
             <input
               type="email"
               placeholder="example@gmail.com"
-              className="flex px-3 py-2 md:px-4 md:py-3 px-2 py-1 m-1 outline-none rounded-md"
+              className="flex px-3 py-2 md:px-4 md:py-3 m-1 outline-none rounded-md"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -59,7 +64,8 @@ export default function () {
             </button>
 
             <button
-             onClick={() => navigate('/user/signin')}
+             onClick={() => navigate('/user/signin')
+            }
               type="submit"
               class="flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium bg-danger text-white"
             >
@@ -69,7 +75,7 @@ export default function () {
           </div>
         </div>
       </form>
-      {isOpen && <ForgotPassOTP isOpen={isOpen} onClose={toggleModal} />}
+      {isOpen && <ForgotPassOTP isOpen={isOpen} onClose={toggleModal} role={userRole} />}
     </div>
   );
 }

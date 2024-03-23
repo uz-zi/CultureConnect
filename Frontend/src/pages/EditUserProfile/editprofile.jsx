@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import pic1 from "../../assets/grey.jpeg";
 import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
-
+import { UserContext } from "../../Context/UserContext";
+import { useContext } from "react";
 
 export default function EditProfile() {
+  const {user} = useContext(UserContext);
+  console.log('Users Role', user.roles);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [nickName, setNickName] = useState("");
@@ -86,7 +90,39 @@ export default function EditProfile() {
 
 
   useEffect(() => {
+    
     async function getInfo() {
+
+      if(user.roles == "native"){
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user && user.id) {
+          const response = await axios.get(
+            "/native/display_userdatafior_update",
+            {
+              params: { id: user.id },
+            }
+          );
+
+          setFirstName(response.data.FirstName);
+          setLastName(response.data.LastName);
+          setNickName(response.data.Name);
+          setPhoneNumber(response.data.PhoneNumber);
+
+          if (response.data.Cover_photo) {
+            console.log(response.data.Cover_photo);
+            setBannerPic(`http://127.0.0.1:5000/${response.data.Cover_photo}`);
+          }
+          if (response.data.Profile_pic) {
+            console.log(response.data.Profile_pic);
+            setProfilePic(`http://127.0.0.1:5000/${response.data.Profile_pic}`);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+    else if(user.roles == "user"){
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (user && user.id) {
@@ -115,11 +151,72 @@ export default function EditProfile() {
         console.error("Error fetching user data:", error);
       }
     }
+    }
 
     getInfo();
   }, []);
 
   const handleSubmission = async () => {
+    if(user.roles == "native"){
+    try {
+
+      
+      const formData = new FormData();
+      formData.append("name", nickName);
+      formData.append("fname", firstName);
+      formData.append("lname", lastName);
+      formData.append("pnum", phoneNumber);
+
+      const nameRegex = /^[A-Za-z]{3,}[0-9]*$/;
+      const phoneRegex = /^03\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+        alert("Phone number must start with 03 and be 11 digits long.");
+        return; 
+    }
+
+      if (!nameRegex.test(firstName)) {
+        alert('First Name should start with at least 3 letters');
+        return;
+      }
+      if (!nameRegex.test(lastName)) {
+        alert('Last Name should start with at least 3 letters');
+        return;
+      }
+      if (!nameRegex.test(nickName)) {
+        alert('Nickname should start with at least 3 letters.');
+        return;
+      }
+
+      const profileImageElement = document.getElementById("customFile1");
+      const coverImageElement = document.getElementById("customFile2");
+
+      if (profileImageElement && profileImageElement.files[0]) {
+        formData.append("profile_image", profileImageElement.files[0]);
+      }
+
+      if (coverImageElement && coverImageElement.files[0]) {
+        formData.append("cover_image", coverImageElement.files[0]);
+      }
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user && user.id) {
+        formData.append("id", user.id);
+      }
+
+      const response = await axios.put("/native/upadte_userprofile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data === "Data updated successfully") {
+        navigate('/user/userprofile');
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  }
+  else{
     try {
 
       
@@ -177,6 +274,7 @@ export default function EditProfile() {
     } catch (error) {
       console.error("Error updating profile:", error);
     }
+  }
   };
 
 

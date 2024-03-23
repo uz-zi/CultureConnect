@@ -3,7 +3,7 @@ import Modal from '../../Modal/Modal';
 import axios from '../../axios';
 import { useNavigate } from 'react-router-dom';
 
-export default function UpdatePassword({ isOpen, onClose }) {
+export default function UpdatePassword({ isOpen, onClose, role }) {
   const navigate = useNavigate();
   const [pass, setPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
@@ -19,13 +19,19 @@ export default function UpdatePassword({ isOpen, onClose }) {
       return; // Do not proceed with password update
     }
 
+    const endpoint = role === "native" ? '/native/changepassword' : '/user/changepassword';
+
     try {
       if (pass === confirmPass) {
-        const response = await axios.post('/user/changepassword', { pass });
+        const response = await axios.post(endpoint, { pass }); // Use the endpoint based on role
         console.log(response);
         if (response.data === "data updated") {
           alert('Password updated');
-          navigate('/user/signin');
+          if (role === "native") {
+            navigate('/native/NativeSignin');
+          } else {
+            navigate('/user/signin');
+          } 
         }
       } else {
         alert('Password and confirm password should be the same');
