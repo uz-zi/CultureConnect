@@ -1,13 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useHistory
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import 'bootstrap/dist/js/bootstrap.bundle.min'; 
-import pic1 from "../../assets/fade5.jpg";
 import pic2 from "../../assets/foreground.jpg";
-import pic3 from "../../assets/fade4.jpg";
 
 export default function Hero() {
-  const navigate = useNavigate(); // Create a history object
+  
+  const navigate = useNavigate();
 
   const textStyle = {
     position: 'absolute',
@@ -51,17 +50,18 @@ export default function Hero() {
               >
                 Get Started
               </button>
+
               <button
                 style={{fontSize: 20, margin: 5}}
                 className="btn btn-secondary mx-3"
-                onClick={() => navigate('/user/NativeSignup')}
+                onClick={() => navigate('/native/NativeSignup')}
               >
                 Work With Us
               </button>
             </div>
             <img src={pic2} style={imageStyle} alt="Los Angeles" />
           </div>
-          {/* ... (other carousel items) */}
+          
         </div>
       </div>
     </div>

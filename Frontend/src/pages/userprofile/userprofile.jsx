@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react";
 import "../userprofile/userprofile.css";
 import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../Context/UserContext";
+import { useContext } from "react";
 
 import logo from "../../assets/logo.png";
 import pic1 from "../../assets/profileIcon.png";
 import pic2 from "../../assets/profileIcon.png";
 
 export default function userprofile() {
+  const {user} = useContext(UserContext);
+  console.log('Users Role', user.roles);
+
+
   const [bannerImage, setBannerImage] = useState(pic1);
   const [profileImage, setProfileImage] = useState(pic2);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -34,10 +40,24 @@ export default function userprofile() {
   const handleEdit = () => {
     navigate("/user/Updtae_prfile");
   };
-
+//-----------------
   const handleDelete = async (id, image, video) => {
     console.log("Deleting post with id:", id, image, video);
     if (image) {
+    if(user.roles == "native"){
+      try {
+        const response = await axios.delete("/native/deleteImagePost", {
+          data: { id },
+        });
+        console.log(response.data);
+        if (response.data === "Data deleted") {
+          setPosts(posts.filter((post) => post.id !== id));
+        }
+      } catch (error) {
+        console.error("Error deleting the image post:", error);
+      }
+    }
+    else{
       try {
         const response = await axios.delete("/user/deleteImagePost", {
           data: { id },
@@ -49,20 +69,38 @@ export default function userprofile() {
       } catch (error) {
         console.error("Error deleting the image post:", error);
       }
+    } 
     } else if (video) {
-      try {
-        const response = await axios.delete("/user/deleteVideoPost", {
-          data: { id },
-        });
-        console.log(response.data);
-        if (response.data === "Data deleted") {
-          setPosts(posts.filter((post) => post.id !== id));
+      if(user.roles == "native") { 
+        try {
+          const response = await axios.delete("/native/deleteVideoPost", {
+            data: { id },
+          });
+          console.log(response.data);
+          if (response.data === "Data deleted") {
+            setPosts(posts.filter((post) => post.id !== id));
+          }
+        } catch (error) {
+          console.error("Error deleting the image post:", error);
         }
-      } catch (error) {
-        console.error("Error deleting the image post:", error);
+      }
+      else{
+        try {
+          const response = await axios.delete("/user/deleteVideoPost", {
+            data: { id },
+          });
+          console.log(response.data);
+          if (response.data === "Data deleted") {
+            setPosts(posts.filter((post) => post.id !== id));
+          }
+        } catch (error) {
+          console.error("Error deleting the image post:", error);
+        }
       }
     }
   };
+
+  //--------------------
 
   const handleEditPost = (id, caption, picture, type) => {
     const determinedType = picture.includes('.png') || picture.includes('.jpg') ? 'image' : 'video';
@@ -76,8 +114,38 @@ export default function userprofile() {
     });
   };
 
+
+
+
   useEffect(() => {
     async function getInfo() {
+      if(user.roles == "native"){
+        
+      try {
+        const id = JSON.parse(localStorage.getItem("user")).id;
+        const response = await axios.get("/native/socialdata", {
+          params: { id: id },
+        });
+
+        if (response.data.Userphoto[0].Profile_pic) {
+          setProfileImage(
+            `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
+          );
+        }
+        if (response.data.Userphoto[0].Cover_photo) {
+          setBannerImage(
+            `http://127.0.0.1:5000/${response.data.Userphoto[0].Cover_photo}`
+          );
+        }
+
+        setPosts(response.data.combinedMedia);
+        setName(response.data.Userphoto[0].Name);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    else{
       try {
         const id = JSON.parse(localStorage.getItem("user")).id;
         const response = await axios.get("/user/socialdata", {
@@ -100,7 +168,11 @@ export default function userprofile() {
       } catch (error) {
         console.log(error);
       }
+      
+
     }
+  }
+
 
     getInfo();
   }, []);
@@ -303,7 +375,7 @@ export default function userprofile() {
                               <button
                                 onClick={() =>
                                   handleEditPost(
-                                    post.id,
+                                    post.UserID,
                                     post.img_caption || post.Captions,
                                     post.picture || post.Video,
                                     post.img_caption ? "image" : "video"
@@ -329,7 +401,7 @@ export default function userprofile() {
                               <button
                                 onClick={() =>
                                   handleDelete(
-                                    post.id,
+                                    post.UserID,
                                     post.picture,
                                     post.Video
                                   )

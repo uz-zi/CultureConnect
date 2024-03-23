@@ -3,8 +3,8 @@ const sequelize = require("../config");
 
 //------create table with feilds--------
 const Post = sequelize.define("videoPost", {
-  UserId: {
-    type: DataTypes.INTEGER,
+  UserID: {
+    type: DataTypes.STRING,
     allowNull: false
   },
   Captions: {

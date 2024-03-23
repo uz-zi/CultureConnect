@@ -24,6 +24,17 @@ router.delete('/deleteImagePost', fuction.deleteImagePost)
 router.get('/getvideoPostforupdate', fuction.get_videoPost_for_update)
 router.get('/getimagePostforupdate', fuction.get_imagePost_for_update)
 
+
+router.get('/allusers_in_plateform', fuction.allusers)
+router.get('/see_other_user_profile', fuction.see_other_user_profile)
+router.put('/logout', fuction.logout)
+
+router.get("/check_chat_box", fuction.check_chat_exist_or_not)
+router.get("/chatbox", fuction.add_chats)
+
+router.get("/allsocialmediaposts", fuction.allSocialMediaPosts)
+router.post("/gpt", fuction.chatgpt)
+
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
   });

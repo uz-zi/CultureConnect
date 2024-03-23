@@ -1,17 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react'; // Import useRef here
+import React, { useState, useEffect, useRef } from 'react'; 
 import Modal from '../../Modal/Modal';
 import useModal from "../../Hooks/useModal";
 import UpdatePassword from './UpdatePassword'; 
 import axios from '../../axios';
 
-function ForgotPassOTP({ onClose, isOpen }) {
+function ForgotPassOTP({ onClose, isOpen, role }) {
     const [isOpen2, toggleModal] = useModal();
-    const [inputs, setInputs] = useState(Array(6).fill('')); // Ensure 'inputs' is defined in this scope
+    const [inputs, setInputs] = useState(Array(6).fill('')); 
+    const inputRefs = useRef([]);
 
-    const inputRefs = useRef([]); // Correct usage of useRef
+    // Log the role when the component mounts or when the role changes
+    useEffect(() => {
+        console.log("Role in ForgotPassOTP:", role);
+        
+        // Focus on the first input when the component mounts
+        if (inputRefs.current[0]) {
+            inputRefs.current[0].focus();
+        }
+    }, [role]); // Dependency array includes role, so this effect runs when role changes
 
     const handleInputChange = (index) => (e) => {
-        const newInputs = [...inputs]; // 'inputs' is accessible here
+        const newInputs = [...inputs]; 
         newInputs[index] = e.target.value;
         setInputs(newInputs);
 
@@ -28,25 +37,18 @@ function ForgotPassOTP({ onClose, isOpen }) {
 
     const handleVerify = async () => {
         const code = inputs.join('');
+        const endpoint = role === "native" ? '/native/verify_forgetpassword' : '/user/verify_forgetpassword';
         try {
-            const response = await axios.post('/user/verify_forgetpassword', { verificationCode: code });
+            const response = await axios.post(endpoint, { verificationCode: code });
             console.log(response);
             if(response.data === "User verified. You can now change your password.") {
                 toggleModal(true);
             }
-            // else if(response.data === "Invalid verification code"){
-            //         alert('Invalid OTP')
-            //     }
         } catch (error) {
-            console.log(error);
+            console.error("Verification error:", error);
         }
     };
 
-    useEffect(() => {
-        if (inputRefs.current[0]) {
-            inputRefs.current[0].focus();
-        }
-    }, []);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -86,7 +88,7 @@ function ForgotPassOTP({ onClose, isOpen }) {
                     </a>
                 </div>
             </form>
-            {isOpen2 && <UpdatePassword isOpen={isOpen2} onClose={toggleModal} />}
+            {isOpen2 && <UpdatePassword isOpen={isOpen2} onClose={toggleModal} role={role} />}
         </Modal>
     );
 }

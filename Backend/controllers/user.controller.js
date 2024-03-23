@@ -7,6 +7,307 @@ const Image_Post = require("../models/imagePost.model")
 const Video_Post = require("../models/videoPost.model")
 const multer = require("multer");
 const errorHandler = require("../utlis/errorhandandler")
+const { Op } = require('sequelize');
+
+const Chatbox = require("../models/chatbox.model")
+
+const { OpenAI } = require('openai');
+
+require('dotenv').config();
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
+const chatgpt = async(req,res) => {
+    
+
+    const model_name = "gpt-4";
+  async function getCategoryCountryFromModel(prompt) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: model_name,
+        messages: [
+          { role: "user", content: prompt }
+        ],
+      });
+      return response.choices[0].message.content
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  }
+
+
+  const model2_name = "gpt-4";
+  async function get_response_from_model(prompt) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: model2_name,
+        messages: [
+          { role: "user", content: prompt }
+        ],
+      });
+      return response.choices[0].message.content
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  }
+
+  function baseForm(word) {
+    if (word.endsWith('ies')) {
+      return word.slice(0, -3) + 'y';
+    } else if (word.endsWith('es')) {
+      return word.slice(0, -2);
+    } else if (word.endsWith('s')) {
+      return word.slice(0, -1);
+    }
+    return word;
+  }
+  
+  function checkConditions(category, country) {
+    // List of predefined words in their base form
+    const predefinedWords = [
+      "Geography",
+      "Historical Place",
+      "Culture",
+      "Famous Place",
+      "Festival",
+      "Community",
+      "Event",
+      "History",
+      "Food",
+      "Music",
+      "Landmark",
+      "Architecture",
+      "Monument",
+      "Housing",
+      "Transportation",
+      "Tradition",
+      "Religion",
+      "Education",
+      "Location",
+      "Hospitality",
+      "Islam",
+      "City",
+      "Dish",
+      "Cuisine",
+      "Language",
+      "Tourism"
+    ];
+  
+    const simplifiedPredefinedWords = predefinedWords.map(w => baseForm(w.toLowerCase()));
+  
+    const condition1 = simplifiedPredefinedWords.includes(baseForm(category.toLowerCase()));
+    const condition2 = country.trim().toLowerCase() === "pakistan";
+  
+    return condition1 && condition2;
+  }
+  
+  const promptInput = req.body.promptinput;
+  const validationPrompt = `${promptInput} only answer me in with one word:\n1. major category\n2. country name from which this prompt is related`;
+
+  try {
+    const response = await getCategoryCountryFromModel(validationPrompt);
+
+    // Parse the response to extract category and country
+    const lines = response.split('\n');
+    if (lines.length >= 2) {
+      const category = lines[0].split('. ')[1]; // Assuming the format "1. Category"
+      const country = lines[1].split('. ')[1]; // Assuming the format "2. Country"
+
+      if (checkConditions(category, country)) {
+        // Assuming getResponseFromModel is defined and returns a promise
+        const promptResponse = await get_response_from_model(promptInput);
+        res.status(200).send({ response: promptResponse, validationResponse: response });
+        console.log(promptResponse)
+      } else {
+        res.status(400).send(`Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: ${response}`);
+        console.log("400")
+      }
+    } else {
+      res.status(401).send("kindly please reenter your query");
+      console.log("401")
+    }
+  } catch (error) {
+    res.status(500).send("kindly reenter your query");
+    console.log("500")
+  }
+
+  
+
+}
+
+
+const allSocialMediaPosts = async (req, res) => {
+  try {
+    await sequelize.sync();
+
+    const excludedUserId = req.query.id; 
+
+    const AllUsersID = await User.findAll({
+      where: {
+        UserID: { [Op.ne]: excludedUserId }
+      },
+      attributes: ['UserID']
+    });
+
+    const AllUsersIDs = [...new Set(AllUsersID.map(entry => entry.UserID))];
+
+
+    console.log(AllUsersIDs)
+
+    const Userphoto = await User.findAll({ where: { UserID: { [Op.in]: AllUsersIDs } } });
+    const images = await Image_Post.findAll({  where: { UserID: { [Op.in]: AllUsersIDs } } });
+    const videos = await Video_Post.findAll({ where: { UserID: { [Op.in]: AllUsersIDs } } });
+
+
+    const combinedMedia = images.concat(videos);
+
+    if (images.length === 0 && videos.length === 0) {
+      console.log("No images or videos found for the given user ID.");
+      return res.status(200).send({ Userphoto, combinedMedia: [] });
+    }
+
+    combinedMedia.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    console.log("Media fetched and sorted successfully.");
+    res.status(200).send({Userphoto, combinedMedia});
+
+  } catch (error) {
+    console.error("Error fetching media: ", error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+
+const check_chat_exist_or_not = async (req, res) => {
+  const senderId = req.query.sender_id; 
+  const receiverId = req.query.id; 
+
+  console.log( "==============================",{ senderId, receiverId });
+
+  try {
+    const existingChat = await Chatbox.findOne({
+      where: {
+        sender_id: senderId,
+        Receiver_Id: receiverId, 
+      }
+    });
+
+    if (!existingChat) {
+      const newChat = await Chatbox.create({
+        sender_id: senderId,
+        Receiver_Id: receiverId,
+      });
+      console.log("New chat saved:", newChat);
+      res.status(200).send("New chat saved");
+    } else {
+      res.status(203).send("Chat already exists");
+    }
+  } catch (error) {
+    console.error("Error checking or creating chat:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
+const add_chats = async (req, res) => {
+  try {
+    await sequelize.sync();
+
+    const senderId = req.query.sender_id; 
+
+    const userId = await Chatbox.findAll({
+      attributes: ['Receiver_Id'], 
+      where: {
+        sender_id: senderId 
+      }
+    });
+    console.log("-------------------------------",userId)
+    const receiverIds = [...new Set(userId.map(entry => entry.Receiver_Id))];
+
+    // Fetch user details for all receiver IDs
+    const users = await User.findAll({
+      where: { UserID: { [Op.in]: receiverIds } },
+      attributes: ['UserID', 'Name', 'Profile_pic']
+    });
+
+    const previousChats = await Chatbox.findAll({
+      where: {
+        [Op.or]: [
+          { sender_id: senderId},
+        ]
+      },
+      order: [['createdAt', 'ASC']] 
+    });
+
+    console.log("User photo:", users);
+
+    
+
+    res.status(200).send({ users, previousChats });
+
+  } catch (error) {
+    console.error("Error in operation: ", error.message);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+
+
+
+
+const allusers = async (req, res) => {
+  try {
+    const excludedUserId = req.query.excludeId;
+
+    // Validate excludedUserId if needed
+
+    const users = await User.findAll({
+      where: {
+        UserID: { [Op.ne]: excludedUserId }
+      },
+      attributes: ['UserID', 'Name', 'Profile_pic', 'is_Online']
+    });
+
+    res.send(users);
+  } catch (error) {
+    console.error("Failed to retrieve data: ", error);
+    res.status(500).send("Failed to retrieve data");
+  }
+};
+
+
+const see_other_user_profile = async (req, res) => {
+  try {
+    await sequelize.sync();
+
+    const Userphoto = await User.findOne({ where: { UserID: req.query.id }, attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo'] });
+    const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
+    const videos = await Video_Post.findAll({ where: { UserID: req.query.id } });
+
+    console.log("-----------", Userphoto)
+
+
+    const combinedMedia = images.concat(videos);
+
+    if (images.length === 0 && videos.length === 0) {
+      console.log("No images or videos found for the given user ID.");
+      return res.status(200).send({ Userphoto, combinedMedia: [] });
+    }
+
+    combinedMedia.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    console.log("Media fetched and sorted successfully.", combinedMedia);
+    res.status(200).send({Userphoto, combinedMedia});
+
+  } catch (error) {
+    console.error("Error fetching media: ", error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+
+
+
 
 
 
@@ -18,7 +319,7 @@ const get_imagePost_for_update = (req, res) => {
     .then(() => {
       Image_Post.findOne({
         where: {
-          id: req.body.id
+          UserID: req.body.id
         },
       })
         .then((rs) => {
@@ -41,7 +342,7 @@ const get_videoPost_for_update = (req, res) => {
     .then(() => {
       Video_Post.findOne({
         where: {
-          id: req.body.id
+          UserID: req.body.id
         },
       })
         .then((rs) => {
@@ -64,7 +365,7 @@ const deleteImagePost = async (req, res) => {
     await sequelize.sync();
 
     const result = await Image_Post.destroy({
-      where: { id: req.body.id },
+      where: { UserID: req.body.id },
     });
 
     if (!result) {
@@ -84,8 +385,9 @@ const deleteVideoPost = async (req, res) => {
     await sequelize.sync();
 
     const result = await Video_Post.destroy({
-      where: { id: req.body.id },
+      where: { UserID: req.body.id },
     });
+    
 
     if (!result) {
       return res.status(404).send(new errorHandler("ID does not exist", 404));
@@ -156,7 +458,7 @@ const retrive_user_data = async (req, res) => {
     console.log(req.query.id);
 
     // Use findOne to get a single user object
-    const user = await User.findOne({ where: { id: req.query.id } });
+    const user = await User.findOne({ where: { UserID: req.query.id } });
 
     if (!user) {
       return res.status(404).send('No user found');
@@ -205,7 +507,7 @@ const update_Profile = async (req, res) => {
       }
 
       // Update user profile in the database
-      const [updatedRows] = await User.update(updateData, { where: { id: req.body.id } });
+      const [updatedRows] = await User.update(updateData, { where: { UserID: req.body.id } });
       if (updatedRows === 0) {
         res.status(404).send("User not found or no data updated");
       } else {
@@ -226,9 +528,9 @@ const allMedia = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const Userphoto = await User.findAll({ where: { id: req.query.id } });
+    const Userphoto = await User.findAll({ where: { UserID: req.query.id } });
     const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
-    const videos = await Video_Post.findAll({ where: { UserId: req.query.id } });
+    const videos = await Video_Post.findAll({ where: { UserID: req.query.id } });
 
 
     const combinedMedia = images.concat(videos);
@@ -274,7 +576,7 @@ const update_image_Post = async (req, res) => {
           img_caption: req.body.caption
         }, {
           where: {
-            id: req.body.id
+            UserID: req.body.id
           }
         });
 
@@ -349,7 +651,7 @@ const update_video_Post = async (req, res) => {
           Captions: req.body.caption
         }, {
           where: {
-            id: req.body.id
+            UserID: req.body.id
           }
         });
 
@@ -385,7 +687,7 @@ const upload_video_Post = async (req, res) => {
         await Video_Post.create({
           Video: req.file.path,
           Captions: req.body.text,
-          UserId: req.body.id 
+          UserID: req.body.id 
         });
 
         console.log("Uploaded file:", req.file);
@@ -431,7 +733,8 @@ const signUpUser = async (req, res) => {
 };
 
 const verifyUser = async (req, res) => {
-    try {
+  let counter = 0;  
+  try {
       console.log('Received verification code:', req.body.verificationCode);
         const { verificationCode } = req.body;
         console.log(temporaryUsers);
@@ -444,12 +747,14 @@ const verifyUser = async (req, res) => {
 
         const newUser = await User.create({
             ...tempUser,
+            role: "user",
             isVerified: true
         });
 
         delete temporaryUsers[verificationCode];
 
         res.send('User verified and registered successfully');
+        console.log("-----------registered");
     } catch (error) {
         console.error("Error in verifyUser: ", error);
         res.status(500).send(error.message);
@@ -470,10 +775,12 @@ const signInUser = async (req, res) => {
       console.error("Invalid Credentials!");
       res.status(401).send("Invalid Credentials");
     } else {
+      user.is_Online = true;
+      await user.save();
       const token = jwtToken.sign({ role: "user" }, 'dfghjk');
 
       const user_ID = await User.findOne({
-        attributes: ['id'],
+        attributes: ['UserID', 'role'],
         where: {
           Email: req.body.email
         }
@@ -586,6 +893,36 @@ const change_password = async(req, res) => {
 };
 
 
+const logout = async (req, res) => {
+  const userId = req.query.id;
+  if (!userId) {
+    return res.status(400).send('User ID must be provided');
+  }
+
+  try {
+    const user = await User.findOne({ where: { UserID: userId } });
+    if (!user) {
+      return res.status(404).send('No user found');
+    }
+
+    // Update the user's online status
+    await user.update({ is_Online: false });
+
+    // Now, fetch the user again to get the updated data, or use the returning option if supported
+    const updatedUser = await User.findOne({ where: { UserID: userId } });
+    console.log("Successfully logged out. User is online:", updatedUser.is_Online);
+
+    // Send back the updated user data
+    res.status(200).send(updatedUser); 
+  } catch (error) {
+    console.error("Error during logout: ", error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+
+
 
   module.exports = {
     signInUser,
@@ -604,5 +941,12 @@ const change_password = async(req, res) => {
     deleteImagePost,
     deleteVideoPost,
     get_imagePost_for_update,
-    get_videoPost_for_update
+    get_videoPost_for_update,
+    allusers,
+    see_other_user_profile,
+    logout,
+    add_chats,
+    check_chat_exist_or_not,
+    allSocialMediaPosts,
+    chatgpt
 };

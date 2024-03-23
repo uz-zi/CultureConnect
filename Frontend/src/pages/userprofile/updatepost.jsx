@@ -3,8 +3,13 @@ import axios from "../../axios";
 import greypic from "../../assets/grey.jpeg";
 import img1 from "../../assets/door.jpg";
 import { useNavigate, useLocation } from "react-router-dom";
+import { UserContext } from "../../Context/UserContext";
+import { useContext } from "react";
 
 export default function UpdatePost() {
+  const {user} = useContext(UserContext);
+  console.log('Users Role', user.roles);
+
   const [description, setDescription] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -80,6 +85,23 @@ export default function UpdatePost() {
       }
     }
   
+    if(user.roles == "native"){
+    try {
+      const updateEndpoint = type === "image" ? "/native/update_image_post" : "/native/update_video_post";
+      const response = await axios.put(updateEndpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+      });
+      console.log(response.data);
+      if(response.data === "Successfully updated record for the image." || response.data === "Successfully updated record for the video."){
+        navigate('/user/userprofile');
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+      alert(error.response.data);
+    }
+  }else{
     try {
       const updateEndpoint = type === "image" ? "/user/update_image_post" : "/user/update_video_post";
       const response = await axios.put(updateEndpoint, formData, {
@@ -95,6 +117,8 @@ export default function UpdatePost() {
       console.error("Error updating post:", error);
       alert(error.response.data);
     }
+
+  }
   };
   
   
