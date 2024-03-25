@@ -19,22 +19,28 @@ function signin() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Errors for signup part
   const [phoneError, setPhoneError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [firstnameError, setFirstnameError] = useState(false);
   const [lastnameError, setLastnameError] = useState(false);
   const [nicknameError, setNicknameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  // Common errors
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
-    const passwordRegex =
-      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     setPassword(value);
-    setPasswordError(!passwordRegex.test(value));
+    if (!isLoginForm) { // Only check error for signup form
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      setPasswordError(!passwordRegex.test(value));
+    }
   };
+
+
+
   const controlFormToggle = () => {
     setIsLoginForm(!isLoginForm);
     setEmail("");
@@ -61,10 +67,11 @@ function signin() {
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    const emailRegex =
-      /^(?:[a-zA-Z0-9._%+-]+@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
     setEmail(value);
-    setEmailError(!emailRegex.test(value));
+    if (!isLoginForm) { // Only check error for signup form
+      const emailRegex = /^(?:[a-zA-Z0-9._%+-]+@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
+      setEmailError(!emailRegex.test(value));
+    }
   };
 
   const handleFirstnameChange = (e) => {
@@ -247,12 +254,7 @@ function signin() {
                       value={email}
                       onChange={handleEmailChange} // Correctly pass the function reference here
                     />
-                    {emailError && (
-                      <div style={{ color: "#22C55E" }}>
-                        Please enter a valid email address. (e.g.,
-                        example@gmail.com or f000000@cfd.nu.edu.pk).
-                      </div>
-                    )}
+                    
                     <label htmlFor="pass">Password</label>
                     <input
                       className={`px-2 py-1 m-1 outline-none rounded-md ${
@@ -266,13 +268,7 @@ function signin() {
                       value={password}
                       onChange={handlePasswordChange}
                     />
-                    {passwordError && (
-                      <div style={{ color: "#22C55E" }}>
-                        Please enter a valid password with at least 6
-                        characters, including 1 alphabetic, 1 special character,
-                        and 1 numeric.
-                      </div>
-                    )}
+                    
                   </div>
                 </>
               ) : (

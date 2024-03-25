@@ -21,7 +21,13 @@ const Blogs = sequelize.define("Blogs", {
   Blog_Title_Image:{
     type:DataTypes.STRING,
     allowNull: false
-  }
+  },
+  BlogsID: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    unique: true,
+    allowNull: false
+  },
 
 });
 

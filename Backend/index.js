@@ -10,6 +10,9 @@ const adminroute = require('./routes/admin.routes');
 const userroute = require('./routes/user.routes')
 const nativeroute = require('./routes/native.route')
 require('dotenv').config();
+const { deleteExpiredAds } = require('./controllers/scheduledTasks');
+
+deleteExpiredAds.start();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

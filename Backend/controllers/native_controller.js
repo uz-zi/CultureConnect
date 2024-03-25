@@ -891,14 +891,12 @@ const add_blogs = async (req, res) => {
         await sequelize.sync();
         console.log("Images table synced successfully!");
 
-        // Ensure you reference the correct file path for each image
-        // and correct the body property names to match your model and form
         const dtaafromfrontend = await Blogs.create({
           UserID: req.body.UserID,
           Blog_Title: req.body.BlogTitle,
           Blog_Content: req.body.blogContent,
-          Blog_Title_Image: req.files['Blog_Title_Image'][0].path, // Reference the image using req.files
-          Blog_Content_Image: req.files['Blog_Content_Image'][0].path, // Reference the image using req.files
+          Blog_Title_Image: req.files['Blog_Title_Image'][0].path, 
+          Blog_Content_Image: req.files['Blog_Content_Image'][0].path, 
         });
 
         console.log("Blog entry added successfully.", dtaafromfrontend);

@@ -12,7 +12,13 @@ const Image = sequelize.define("imagePost", {
       },
       img_caption:{
         type:DataTypes.STRING
-      }
+      },
+      ImageID: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        unique: true,
+        allowNull: false
+      },
 });
 
 module.exports = Image;

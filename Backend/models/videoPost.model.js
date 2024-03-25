@@ -12,7 +12,13 @@ const Post = sequelize.define("videoPost", {
   },
   Video: {
     type: DataTypes.STRING
-  }
+  },
+  VideoID: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    unique: true,
+    allowNull: false
+  },
 });
 
 module.exports = Post;

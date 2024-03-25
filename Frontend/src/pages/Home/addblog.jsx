@@ -2,10 +2,14 @@
 import pic1 from '../../assets/grey.jpeg';
 import React, { useState } from 'react';
 import axios from 'axios'; // Ensure axios is installed
+import { useNavigate } from "react-router-dom";
+
 
 
 
 export default function addblog() {
+  const navigate = useNavigate(); 
+  
     const formcontent = {
         display: 'block',
             width: '100%',
@@ -105,7 +109,8 @@ async function handleSubmit(e) {
           },
       });
 
-      console.log(response.data); // Handle success
+      console.log(response.data);
+      navigate("/user/Homepage"); // Handle success
   } catch (error) {
       console.error(error); // Handle error
   }

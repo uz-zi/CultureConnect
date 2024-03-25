@@ -35,6 +35,9 @@ router.get("/chatbox", fuction.add_chats)
 router.get("/allsocialmediaposts", fuction.allSocialMediaPosts)
 router.post("/gpt", fuction.chatgpt)
 
+router.get("/get_email_of_reporter", fuction.get_email_of_user_for_report)
+router.post("/submit_report", fuction.saveTheReportDataInModel)
+
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
   });

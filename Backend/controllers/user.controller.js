@@ -2,12 +2,14 @@ const User = require("../models/user.model");
 const sequelize = require("../config");
 const jwtToken = require("jsonwebtoken");
 const crypto = require('crypto');
-const { sendVerificationEmail } = require('./nodemailer.emailservice');
+const { sendVerificationEmail, report_confirm_email } = require('./nodemailer.emailservice');
 const Image_Post = require("../models/imagePost.model")
 const Video_Post = require("../models/videoPost.model")
 const multer = require("multer");
 const errorHandler = require("../utlis/errorhandandler")
 const { Op } = require('sequelize');
+const Native = require("../models/native.model")
+const Reports = require("../models/Reports.model")
 
 const Chatbox = require("../models/chatbox.model")
 
@@ -106,7 +108,7 @@ const chatgpt = async(req,res) => {
   try {
     const response = await getCategoryCountryFromModel(validationPrompt);
 
-    // Parse the response to extract category and country
+    
     const lines = response.split('\n');
     if (lines.length >= 2) {
       const category = lines[0].split('. ')[1]; // Assuming the format "1. Category"
@@ -921,6 +923,57 @@ const logout = async (req, res) => {
 };
 
 
+const get_email_of_user_for_report = async (req, res) => {
+  try {
+    const Id = req.query.id;
+
+    let emailRecord = await User.findOne({
+      where: { UserID: Id },
+      attributes: ['Email']
+    });
+
+    if (!emailRecord) {
+      emailRecord = await Native.findOne({
+        where: { UserID: Id },
+        attributes: ['Email']
+      });
+    }
+
+    if (emailRecord) {
+      res.send(emailRecord);
+      console.log("-----------email", emailRecord)
+    } else {
+      res.status(404).send("Email not found for the given UserID");
+    }
+  } catch (error) {
+    console.error("Failed to retrieve data: ", error);
+    res.status(500).send("Failed to retrieve data");
+  }
+};
+
+
+
+const saveTheReportDataInModel = async (req, res) => {
+  try {
+    await Reports.create({
+      Reported_Post_ID: req.body.post_id, 
+      postType: req.body.PostType,
+      Reporter_email: req.body.Reporter_Email,
+      reportjustification: req.body.ReportJustification,
+      Reporttitle: req.body.report_tile
+    });
+
+
+    await report_confirm_email(req.body.Reporter_Email);
+    res.status(201).send({ message: "Report successfully submitted and email sent." });
+  } catch (error) {
+    console.error("Failed to save report data: ", error);
+    res.status(500).send({ message: "Failed to save report data" });
+  }
+};
+
+
+
 
 
 
@@ -948,5 +1001,7 @@ const logout = async (req, res) => {
     add_chats,
     check_chat_exist_or_not,
     allSocialMediaPosts,
-    chatgpt
+    chatgpt,
+    get_email_of_user_for_report,
+    saveTheReportDataInModel
 };
