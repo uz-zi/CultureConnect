@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../../axios'; // Ensure you have axios installed and properly configured
+import axios from '../../axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
-import { useLocation } from 'react-router-dom';
-
 
 export default function Home() {
     const navigate = useNavigate();
     const [blogs, setBlogs] = useState([]);
-    const baseURL = 'http://localhost:5000/'; // Adjust this base URL to match your backend servers
+    const [reportOptionVisible, setReportOptionVisible] = useState({});
+    const baseURL = 'http://localhost:5000/';
 
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await axios.get(`${baseURL}native/allblogs`);  // Adjust the endpoint as necessary
+                const response = await axios.get(`${baseURL}native/allblogs`);
                 setBlogs(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -25,47 +24,78 @@ export default function Home() {
     }, []);
 
     const navigateToBlogs = (blogId) => {
-      // Navigate with state
-      navigate("/user/seeBlogs", { state: { blogId: blogId } });
-  };
+        navigate("/user/seeBlogs", { state: { blogId: blogId } });
+    };
 
-    
+    const toggleReportOption = (blogId) => {
+        setReportOptionVisible(prev => ({
+            ...prev,
+            [blogId]: !prev[blogId],
+        }));
+    };
+
+    const handleReportClick = (blog) => {
+        const postId = blog.BlogsID;
+        const postType = 'blog';
+
+        console.log("----------blogID", postId)
+
+        navigate('/user/Feedback', { state: { postId, postType } });
+    };
+
+
+    const handleReportClick1 = (post) => {
+        const postId = post.VideoID ? post.VideoID : post.ImageID;
+        const postType = post.VideoID ? 'video' : 'image';
+        navigate('/user/Feedback', { state: { postId, postType } });
+      };
 
     return (
-      <div>
-        <br />
-        <h1 className="mb-3 mb-xl-4 text-uppercase text-center my-5" style={{fontSize: '38px'}}> Blogs </h1>
-        <hr />
-        <div className="container overflow-hidden">
-            <div className="row gy-4 gy-lg-0">
-                {blogs.map((blog) => (
-                    <div className="col-12 col-lg-4 mt-5" key={blog.id}>
-                        <article>
-                            <div className="card border-0">
-                                <img className="card-img-top img-fluid m-0" loading="lazy" src={`${baseURL}${blog.Blog_Title_Image}`} alt=""/>
-                                <div className="card-body border bg-white p-4">
-                                    <div className="entry-header mb-3">
-                                        <h2 className="card-title entry-title h4 mb-0">
-                                            <a className="link-dark text-decoration-none" href="#!">{blog.Blog_Title}</a>
-                                        </h2>
-                                    </div>
-                                    <div className='text-justify-center'>
-                                        <p className="card-text entry-summary text-secondary mb-3">
-                                            {blog.Blog_Content.split(" ").slice(0, 100).join(" ")}...
-                                        </p>
-                                        <div className='text-center'>
-                                            {/* Update the onClick handler to pass blog's ID */}
-                                            <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 20}} onClick={() => navigateToBlogs(blog.id)}>Read More</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                ))}
-                <div className='mb-5'></div>
-            </div>
+        <div>
+          <br />
+          <h1 className="mb-3 mb-xl-4 text-uppercase text-center my-5" style={{fontSize: '38px'}}> Blogs </h1>
+          <hr />
+          <div className="container overflow-hidden">
+              <div className="row gy-4 gy-lg-0">
+                  {blogs.map((blog) => (
+                      <div className="col-12 col-lg-4 mt-5" key={blog.id}>
+                        <div className='text-end mt-3'>
+                                              <button className="btn" onClick={() => toggleReportOption(blog.id)}>
+                                                  <i className="fas fa-ellipsis-v"></i> {/* Adjust icon based on your icons library */}
+                                              </button>
+                                              {reportOptionVisible[blog.id] && (
+                                                  <div>
+                                                      <button className="btn btn-danger" onClick={() => handleReportClick(blog)}>Report</button>
+                                                  </div>
+                                              )}
+                                          </div>
+                          <article>
+                              <div className="card border-0">
+                                  <img className="card-img-top img-fluid m-0" loading="lazy" src={`${baseURL}${blog.Blog_Title_Image}`} alt=""/>
+                                  <div className="card-body border bg-white p-4">
+                                      <div className="entry-header mb-3">
+                                          <h2 className="card-title entry-title h4 mb-0">
+                                              <a className="link-dark text-decoration-none" href="#!">{blog.Blog_Title}</a>
+                                          </h2>
+                                      </div>
+                                      <div className='text-justify-center'>
+                                          <p className="card-text entry-summary text-secondary mb-3">
+                                              {blog.Blog_Content.split(" ").slice(0, 100).join(" ")}...
+                                          </p>
+                                          <div className='text-center'>
+                                              <a href="#!" className="btn bsb-btn-2xl btn-primary " style={{fontSize: 20}} onClick={() => navigateToBlogs(blog.id)}>Read More</a>
+                                          </div>
+                                          {/* Three-dotted button for report */}
+                                          
+                                      </div>
+                                  </div>
+                              </div>
+                          </article>
+                      </div>
+                  ))}
+                  <div className='mb-5'></div>
+              </div>
+          </div>
         </div>
-      </div>
-    );
-}
+      );
+  }

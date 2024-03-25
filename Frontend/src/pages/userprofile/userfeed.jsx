@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import axios from "../../axios";
 import logo from "../../assets/logo.png";
 import pic2 from "../../assets/profileIcon.png";
-import pic6 from "../../assets/img5.jpg";
 
 export default function UserFeed() {
   const [profileImage, setProfileImage] = useState(pic2);
   const navigate = useNavigate();
   const [mappedMedia, setMappedMedia] = useState([]);
+  const [reportOptionVisible, setReportOptionVisible] = useState({});
 
   const navigateToHomepage = () => {
     navigate("/user/Homepage");
@@ -55,11 +55,23 @@ export default function UserFeed() {
     getInfo();
   }, []);
 
-
   const navigateToOtherUserProfile = (userID) => {
-    navigate('/OtherUserProfile', { state: { UserID: userID } });
+    navigate("/OtherUserProfile", { state: { UserID: userID } });
 
-    console.log("userid----------", userID)
+    console.log("userid----------", userID);
+  };
+
+  const toggleReportOption = (postId) => {
+    setReportOptionVisible((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
+
+  const handleReportClick = (post) => {
+    const postId = post.VideoID ? post.VideoID : post.ImageID;
+    const postType = post.VideoID ? 'video' : 'image';
+    navigate('/user/Feedback', { state: { postId, postType } });
   };
 
   return (
@@ -138,16 +150,20 @@ export default function UserFeed() {
                 {mappedMedia.map((post, index) => (
                   <div key={post.id} className="post">
                     <div className="tb">
-                    <a href="#" className="td p-p-pic" onClick={() => navigateToOtherUserProfile(post.UserID)}>
-                      <img
-                        src={
-                          post.UserPhoto.Profile_pic
-                            ? `http://127.0.0.1:5000/${post.UserPhoto.Profile_pic}`
-                            : pic2
-                        }
-                        alt={`${post.UserPhoto.Name}'s profile pic`}
-                      />
-                    </a>
+                      <a
+                        href="#"
+                        className="td p-p-pic"
+                        onClick={() => navigateToOtherUserProfile(post.UserID)}
+                      >
+                        <img
+                          src={
+                            post.UserPhoto.Profile_pic
+                              ? `http://127.0.0.1:5000/${post.UserPhoto.Profile_pic}`
+                              : pic2
+                          }
+                          alt={`${post.UserPhoto.Name}'s profile pic`}
+                        />
+                      </a>
                       <div className="td p-r-hdr">
                         <div className="p-u-info">
                           <p>{post.img_caption || post.Captions}</p>
@@ -159,6 +175,22 @@ export default function UserFeed() {
                           </i>
                           {new Date(post.createdAt).toLocaleDateString()}
                         </div>
+                      </div>
+                      {/* Three-dotted button */}
+                      <div className="td p-menu">
+                        <button
+                          className="p-menu-btn"
+                          onClick={() => toggleReportOption(post.id)}
+                        >
+                          <i className="material-icons">
+                            <ion-icon name="ellipsis-horizontal"></ion-icon>
+                          </i>
+                        </button>
+                        {reportOptionVisible[post.id] && (
+                          <div className="p-report-toggle">
+                            <button onClick={() => handleReportClick(post)}>Report</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <a href="#" className="p-cnt-v">

@@ -34,6 +34,10 @@ import Adadds from "./pages/Adspage/adspage";
 import AllUsersProfile from "./pages/ALL_USERS_PROFILE";
 import SeeOtherUserProfile from "./pages/View_another_user_profile/userprofile";
 import OneNativeallblog from "./pages/Home/my_blogs"
+import MyOwnBlog from "./pages/Home/see_my_own_blogs"
+import AdminNavBar from "./pages/Navbar/AdminNavBar"
+import AdminViewSocialPost from "./pages/Admin/viewSocialpost"
+import AdminViewBlogPost from "./pages/Admin/find_blog"
 
 import { UserContext } from "./Context/UserContext";
 
@@ -63,11 +67,11 @@ function App() {
         <Route path="/user/forgetPassword" element={<ConfirmEmail/>} ></Route>
 
 
-        <Route path="/user/userprofile" element={<Userprofile/>}></Route>
-        <Route path="/user/socialhomepage" element={<Socialhomepage/>}></Route>
-        <Route path="/user/Social_add_post" element={<Social_add_post/>}></Route>
-        <Route path="/user/update_post" element={<UpdatePost/>}></Route>
-        <Route path="/user/Updtae_prfile" element={<Updtae_prfile/>}></Route>
+        <Route path="/user/userprofile" element={<div> <Adds/> <Userprofile/> </div>}></Route>
+        <Route path="/user/socialhomepage" element={<div><Adds/><Socialhomepage/></div>}></Route>
+        <Route path="/user/Social_add_post" element={<div> <Adds/><Social_add_post/></div>}></Route>
+        <Route path="/user/update_post" element={<div> <Adds/><UpdatePost/></div>}></Route>
+        <Route path="/user/Updtae_prfile" element={<div> <Adds/><Updtae_prfile/></div>}></Route>
         
         <Route path="/user/Homepage" element={<div>
           <Chatbot/><Navbar2/><Homepage/><Footerpage/></div>}></Route>
@@ -84,13 +88,17 @@ function App() {
          <Route path="/user/NativeProfile" element={<><Navbar2/><NativeProfile/><Footerpage/></>}></Route>
          <Route path="/user/Addblog" element={<><Navbar2/><Addblog/><Footerpage/></>}></Route>
          <Route path="/user/one_native_all_blog" element={<><Navbar2/><OneNativeallblog/><Footerpage/></>}></Route>
+         <Route path="/user/native_my_own_blog" element={<><Navbar2/><MyOwnBlog/><Footerpage/></>}></Route>
+         <Route path="/user/NativeServices" element={<><Navbar2/><Servicepage/><Footerpage/></>}></Route>
 
-
+         <Route path="/user/Feedback" element={<><Feedbackpage/><Footerpage/></>}></Route>
         
+        <Route path="/adminfeedback" element={<><AdminNavBar/><Adminfeedback/></>}></Route>
+        <Route path="/adminViewSocialPost" element={<><AdminNavBar/><AdminViewSocialPost/></>}></Route>
+        <Route path="/adminViewBlogPost" element={<><AdminNavBar/><AdminViewBlogPost/></>}></Route>
+
+
         <Route path="/user/Payment" element={<><Paymentpage/><Footerpage/></>}></Route>
-        <Route path="/user/Feedback" element={<><Feedbackpage/><Footerpage/></>}></Route>
-        <Route path="/user/NativeServices" element={<><Navbar2/><Servicepage/><Footerpage/></>}></Route>
-        <Route path="/adminfeedback" element={<Adminfeedback/>}></Route>
         <Route path="/addads" element={<Adadds/>}></Route>
         <Route path="/ads" element={<Adds/>}></Route>  
         

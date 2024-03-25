@@ -10,8 +10,6 @@ import axios from "../../axios";
 import { UserContext } from "../../Context/UserContext";
 import { useContext } from "react";
 
-// /user/one_native_all_blog
-
 export default function Navbar2() {
   const { user } = useContext(UserContext);
   console.log("Users Role", user.roles);
@@ -86,7 +84,7 @@ export default function Navbar2() {
                 <a
                   className="my-nav-link1"
                   href="#"
-                  onClick={() => navigate("/user/one_native_all_blog")}
+                  onClick={() => navigate("/user/native_my_own_blog")}
                 >
                   Myblogs
                 </a>
