@@ -38,6 +38,13 @@ router.post("/gpt", fuction.chatgpt)
 router.get("/get_email_of_reporter", fuction.get_email_of_user_for_report)
 router.post("/submit_report", fuction.saveTheReportDataInModel)
 
+
+router.get ("/getallnotification", fuction.fetchAllNotifications)
+router.get ("/check_notification_state", fuction.check_new_notification_or_not)
+
+
+router.post("/payment_by_user", fuction.Payment_from_user)
+
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
   });

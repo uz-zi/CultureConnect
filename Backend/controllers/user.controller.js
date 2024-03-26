@@ -10,6 +10,9 @@ const errorHandler = require("../utlis/errorhandandler")
 const { Op } = require('sequelize');
 const Native = require("../models/native.model")
 const Reports = require("../models/Reports.model")
+const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
+const Notification = require("../models/notification.model")
+const Payment = require("../models/Payment.model")
 
 const Chatbox = require("../models/chatbox.model")
 
@@ -753,6 +756,12 @@ const verifyUser = async (req, res) => {
             isVerified: true
         });
 
+        await NotificationsOpenOrNot.create({
+          UserEmail: tempUser.Email
+        })
+
+
+        console.log("------------email", tempUser.Email)
         delete temporaryUsers[verificationCode];
 
         res.send('User verified and registered successfully');
@@ -907,14 +916,11 @@ const logout = async (req, res) => {
       return res.status(404).send('No user found');
     }
 
-    // Update the user's online status
     await user.update({ is_Online: false });
 
-    // Now, fetch the user again to get the updated data, or use the returning option if supported
     const updatedUser = await User.findOne({ where: { UserID: userId } });
     console.log("Successfully logged out. User is online:", updatedUser.is_Online);
 
-    // Send back the updated user data
     res.status(200).send(updatedUser); 
   } catch (error) {
     console.error("Error during logout: ", error.message);
@@ -973,6 +979,153 @@ const saveTheReportDataInModel = async (req, res) => {
 };
 
 
+const check_new_notification_or_not = async (req, res) => {
+
+  const Id = req.query.id;
+
+  console.log("-------------id coming from frontend is", Id)
+  try{
+
+  let emailRecord = await User.findOne({
+    where: { UserID: Id },
+    attributes: ['Email']
+  });
+
+  if (!emailRecord) {
+    emailRecord = await Native.findOne({
+      where: { UserID: Id },
+      attributes: ['Email']
+    });
+  }
+
+  console.log("---------------email found is", emailRecord)
+
+  const Email = emailRecord ? emailRecord.dataValues.Email : null;
+
+  const status = await NotificationsOpenOrNot.findOne({
+    where: {UserEmail: Email}
+  });
+
+  res.send(status.Notification_status)
+
+  console.log("----------------status sending to frontend is", status.Notification_status)
+}
+catch(error) {
+  console.error("Error fetching status: ", error);
+  res.status(500).send("Error fetching status");
+}
+
+
+
+}
+
+
+const fetchAllNotifications = async (req, res) => {
+
+  const Id = req.query.id;
+  console.log("-------------id coming from frontend is", Id)
+  try {
+    const notifications = await Notification.findAll({
+      
+      order: [['createdAt', 'DESC']]
+    });
+
+    let emailRecord = await User.findOne({
+      where: { UserID: Id },
+      attributes: ['Email']
+    });
+
+    if (!emailRecord) {
+      emailRecord = await Native.findOne({
+        where: { UserID: Id },
+        attributes: ['Email']
+      });
+    }
+
+    const Email = emailRecord ? emailRecord.dataValues.Email : null;
+
+    await NotificationsOpenOrNot.update({ Notification_status:false }, {
+      where: {UserEmail: Email}
+    });
+
+
+    console.log("------------------------------state turn into false" )
+    res.json(notifications);
+
+  } catch (error) {
+    console.error("Error fetching notifications: ", error);
+    res.status(500).send("Error fetching notifications");
+  }
+
+
+
+}
+
+//--------------------------------------------------------------------------------------payment method
+
+const paymentPicStorage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, "./uploads/payment_pics");
+    },
+    filename: function(req, file, cb) {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+// Configure file filter for image files
+const paymentPicFileFilter = (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        req.fileValidationError = "Only image files are allowed!";
+        return cb(new Error("Only image files are allowed!"), false);
+    }
+    cb(null, true);
+};
+
+// Set up Multer for image upload
+const paymentPicUpload = multer({
+    storage: paymentPicStorage,
+    fileFilter: paymentPicFileFilter
+});
+
+const Payment_from_user = async (req, res) => {
+    try {
+        await paymentPicUpload.single('Payment_Pic')(req, res, async (err) => {
+            if (req.fileValidationError) {
+                return res.status(400).send(req.fileValidationError);
+            }
+            if (err) {
+                return res.status(500).send(err.message);
+            }
+
+            try {
+              const newPayment = await Payment.create({
+                  // UserID: req.body.UserID,
+                  // ChatID: req.body.ChatID,
+                  // Email: req.body.Email,
+                  Amount: req.body.Amount,
+                  Last_four_digit_of_account: req.body.Last_four_digit_of_account,
+                  Payment_Pic: req.file.path, 
+                  Payment_Method: req.body.Payment_Method,
+                  Date: req.body.Date,
+                  Time: req.body.Time,
+                  
+              });
+          
+              console.log("Payment record created successfully!");
+              res.send({ message: "Payment record created successfully!", payment: newPayment });
+          } catch (error) {
+              console.error("Failed to create payment record: ", error);
+              res.status(500).send(error.message);
+          }
+        });
+    } catch (error) {
+        console.error("Failed to process payment data: ", error);
+        res.status(500).send(error.message);
+    }
+};
+
+
+
 
 
 
@@ -1002,6 +1155,12 @@ const saveTheReportDataInModel = async (req, res) => {
     check_chat_exist_or_not,
     allSocialMediaPosts,
     chatgpt,
+
+
+
     get_email_of_user_for_report,
-    saveTheReportDataInModel
+    saveTheReportDataInModel,
+    fetchAllNotifications,
+    check_new_notification_or_not,
+    Payment_from_user
 };

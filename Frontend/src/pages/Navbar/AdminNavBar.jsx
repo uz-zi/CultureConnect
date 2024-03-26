@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar2() {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -15,7 +17,6 @@ export default function Navbar2() {
 
   return (
     <div className="bg-gray-100">
-      {/* Embedding CSS using a style tag */}
       <style>
   {`
     .animated-link {
@@ -30,28 +31,27 @@ export default function Navbar2() {
 </style>
 
       <div className="flex overflow-hidden bg-gray-200">
-        {/* Sidebar */}
-        <div className={`absolute bg-gray-800 text-white w-56 min-h-screen overflow-y-auto transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} ease-in-out duration-300`}>
+        <div className={`absolute bg-gray-800 text-white z-20 w-56 min-h-screen overflow-y-auto transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} ease-in-out duration-300`}>
           <div className="p-4">
             <h1 className="text-2xl font-semibold"></h1>
             <ul className="mt-4">
               <li className="mb-2">
-                <a href="#" className="block animated-link">Home</a>
+                {/* Changed to use href for navigation */}
+                <a href="/adminfeedback" className="block animated-link">Home</a>
               </li>
               <li className="mb-2">
-                <a href="#" className="block animated-link">Add Ads</a>
+                <a href="/addads" className="block animated-link">Add Ads</a>
               </li>
               <li className="mb-2">
-                <a href="#" className="block animated-link">Add Notification</a>
+                <a href="/addNotification" className="block animated-link">Add Notification</a>
               </li>
               <li className="mb-2">
-                <a href="#" className="block animated-link">Payment</a>
+                <a href="/admin_check_payment" className="block animated-link">Payment</a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Main content and top bar */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="bg-white shadow">
             <div className="container mx-auto">

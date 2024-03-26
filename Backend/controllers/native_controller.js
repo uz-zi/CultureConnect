@@ -12,6 +12,7 @@ const { Op } = require('sequelize');
 const Chatbox = require("../models/chatbox.model")
 const { OpenAI } = require('openai');
 const Blogs = require("../models/blogs.model");
+const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
 
 
 require('dotenv').config();
@@ -730,6 +731,10 @@ const verifyUser = async (req, res) => {
             role: "native",
             isVerified: true
         });
+
+        await NotificationsOpenOrNot.create({
+          UserEmail: tempUser.Email
+        })
 
         delete temporaryUsers[verificationCode];
 

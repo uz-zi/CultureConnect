@@ -79,5 +79,27 @@ const update_of_reported_post = async (reporter_email,  Name,  posttype, date, r
     });
 };
 
+
+
+const PaymentConfirmation = async () => {
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: "f201114@cfd.nu.edu.pk",
+            pass: 'vloo cvlm jbqk hwhk'
+    }
+    });
+
+    const email = "uzmanzahid6655@gmail.com"
+
+    await transporter.sendMail({
+        from: '"CultureConnect.pk" <f201114@cfd.nu.edu.pk>',
+        to: email,
+        subject: 'Update Regarding Your Report',
+        text:  `Hi UserXYZ, Your payment for the learning putpose with native has been confirm. You can now caht with NativeXYZ.
+        `
+    });
+};
+
 module.exports = { sendVerificationEmail,
-report_confirm_email, email_to_reported_id_user, update_of_reported_post };
+report_confirm_email, email_to_reported_id_user, update_of_reported_post, PaymentConfirmation };

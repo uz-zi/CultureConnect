@@ -1,20 +1,45 @@
-import React from "react";
-import logo from "../../assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Navbar/Navbar2.css";
-import pic12 from "../../assets/light11.jpg";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "../../axios";
 
 import { UserContext } from "../../Context/UserContext";
-import { useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 
 export default function Navbar2() {
+  
   const { user } = useContext(UserContext);
   console.log("Users Role", user.roles);
+  console.log("-----------------user ID for notification",user.id)
+  const [hasNotification, setHasNotification] = useState(false);
+
+
+
+  useEffect(() => {
+    checkNotificationState();
+  }, [user.id]);
+  
+  const checkNotificationState = async () => {
+    if (user && user.id) {
+      try {
+        const response = await axios.get("/user/check_notification_state", {
+          params: { id: user.id },
+        });
+  
+        console.log("status of notification coming from backend", response.data);
+        setHasNotification(response.data);
+      } catch (error) {
+        console.error("Error checking notification state:", error);
+      }
+    }
+  };
+
+
+
 
   const navigate = useNavigate();
+  
 
   const handleLogout = () => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -61,6 +86,13 @@ export default function Navbar2() {
           <label id="my-logo1">CultureConnect</label>
 
           <ul id="ul-design1">
+
+          <li className="li-design1">
+  <a className="my-nav-link1" onClick={() => navigate("/notification", { state: { userId: user.id } })}>
+    <i className={`fas fa-bell ${hasNotification ? "ring-animation" : ""}`}></i>
+  </a>
+</li>
+
             <li class="li-design1">
               <a
                 class="my-nav-link1"

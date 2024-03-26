@@ -1,87 +1,166 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import axios from "../../axios";
 
-export default function paymentpage() {
+export default function CheckPayment() {
+  const [reports, setReports] = useState([]); // Initialize reports to an empty array
+  const [showModal, setShowModal] = useState(false);
+  const [currentImage, setCurrentImage] = useState('');
+  const [modalPosition, setModalPosition] = useState({ top: '20%', left: '25%' });
+
+  useEffect(() => {
+    const fetchPaymentData = async () => {
+      try {
+        const response = await axios.get("/admin/getAllPaymentData");
+        // Transform data to match your frontend structure
+        const transformedData = response.data.map(item => ({
+          id: item.id,
+          userID: item.UserID || "N/A", 
+          chatboxID: item.ChatID || "N/A", 
+          email: item.Email || "user@example.com", 
+          amount: `$${item.Amount}`,
+          lastDigitsOfAccount: item.Last_four_digit_of_account.toString(),
+          paymentMethod: item.Payment_Method,
+          date: item.Date,
+          Time: item.Time,
+          paymentPic: `http://localhost:5000/${item.Payment_Pic}`, 
+          confirm_payment: item.isVerified ? "Confirmed" : "Confirm"
+        }));
+        setReports(transformedData);
+      } catch (error) {
+        console.error("Failed to fetch payment data:", error);
+      }
+    };
+
+    fetchPaymentData();
+  }, []);
+
+  const initialReports = [
+    {
+      id: 1,
+      userID: "User123",
+      chatboxID: "Chat123",
+      email: "user@example.com",
+      amount: "$100",
+      lastDigitsOfAccount: "6789",
+      paymentMethod: "Credit Card",
+      date: new Date().toISOString(),
+      Time: "Processed",
+      paymentPic: "https://via.placeholder.com/150",
+      confirm_payment: "Confirm",
+    },
+  ];
+
+
+  
+  const openModal = (event, imageURL) => {
+    const buttonPosition = event.target.getBoundingClientRect(); 
+    const topPosition = buttonPosition.top + window.scrollY + 20;
+    const leftPosition = buttonPosition.left + window.scrollX;
+
+    setCurrentImage(imageURL);
+    setShowModal(true);
+    setModalPosition({ top: `${topPosition}px`, left: `${leftPosition}px` });
+  };
+
+  
+  const closeModal = () => {
+    setShowModal(false);
+    setCurrentImage('');
+  };
+
+  const Modal = ({ show, onClose, imgSrc, position }) => {
+    if (!show) {
+      return null;
+    }
+
+    
+  
+    return (
+      <div style={{
+        position: 'fixed', 
+        top: position.top, 
+        left: position.left, 
+        backgroundColor: 'white', 
+        padding: 20, 
+        zIndex: 100,
+        border: '1px solid #ccc',
+        boxShadow: '2px 2px 10px rgba(0,0,0,0.3)',
+        width: '340px', 
+        height: '340px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <img src={imgSrc} alt="Payment Proof" style={{ width: '300px', height: '300px', objectFit: 'contain' }} />
+        <br/>
+        <button onClick={onClose} style={{marginTop: '10px', position: 'absolute', top: '10px', right: '10px'}}>Close</button>
+      </div>
+    );
+  };
+
+
+  const confirmPayment = async (reportId) => {
+    try {
+      // Assuming you might need to send the report ID or some other data for confirmation
+      const response = await axios.post(`/admin/paymentConfirmation?reportId=${reportId}`);
+      // Handle response, maybe refresh data or show a confirmation message
+      console.log('Payment confirmed for:', reportId);
+      // Optionally, refresh your reports list here to reflect the confirmation
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+    }
+  };
+
   return (
-    <div>
-      <div className="col-md-6 offset-md-3 mb-5">
-        <span className="anchor" id="formPayment"></span>
-        <h3 className="text-center my-3" style={{fontSize: "38px"}}>PAYMENT</h3>
-        <hr className="mb-5"/>
-
-
-        <div className="card card-outline-secondary">
-            <div className="card-body">
-                <h3 className="text-center mb-3" style={{fontSize: "32px"}}>Credit Card Payment</h3>
-                <hr/>
-                <div className="alert alert-info p-2 pb-3">
-                    <a className="close font-weight-normal initialism" data-dismiss="alert" href="#"><samp>×</samp></a> 
-                    CVC code is required.
-                </div>
-                <form className="form" role="form" autocomplete="off">
-                    <div className="form-group">
-                        <label for="cc_name">Card Holder's Name</label>
-                        <input type="text" className="form-control" id="cc_name" pattern="\w+ \w+.*" title="First and last name" required="required"/>
-                    </div>
-                    <div className="form-group">
-                        <label>Card Number</label>
-                        <input type="text" className="form-control" autocomplete="off" maxlength="20" pattern="\d{16}" title="Credit card number" required=""/>
-                    </div>
-                    <div className="form-group row">
-                        <label className="col-md-12">Card Exp. Date</label>
-                        <div className="col-md-4">
-                            <select className="form-control" name="cc_exp_mo" size="0">
-                                <option value="01">01</option>
-                                <option value="02">02</option>
-                                <option value="03">03</option>
-                                <option value="04">04</option>
-                                <option value="05">05</option>
-                                <option value="06">06</option>
-                                <option value="07">07</option>
-                                <option value="08">08</option>
-                                <option value="09">09</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                            </select>
-                        </div>
-                        <div className="col-md-4">
-                            <select className="form-control" name="cc_exp_yr" size="0">
-                                <option>2018</option>
-                                <option>2019</option>
-                                <option>2020</option>
-                                <option>2021</option>
-                                <option>2022</option>
-                                <option>2023</option>
-                                <option>2024</option>  
-                            </select>
-                        </div>
-                        <div className="col-md-4">
-                            <input type="text" className="form-control" autocomplete="off" maxlength="3" pattern="\d{3}" title="Three digits at back of your card" required="" placeholder="CVC"/>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <label className="col-md-12">Amount</label>
-                    </div>
-                    <div className="form-inline">
-                        <div className="input-group">
-                            <div className="input-group-prepend"><span className="input-group-text">$</span></div>
-                            <input type="text" className="form-control text-right" id="exampleInputAmount" placeholder="39"/>
-                            <div className="input-group-append"><span className="input-group-text">.00</span></div>
-                        </div>
-                    </div>
-                    <hr/>
-                    <div className="form-group row">
-                        <div className="col-md-6 mt-3">
-                            <button type="reset" className="btn btn-default btn-lg btn-block">Cancel</button>
-                        </div>
-                        <div className="col-md-6 mt-3" >
-                        <a href="#!" className="btn bsb-btn-2xl btn-success " style={{fontSize: 20}}>Submit</a>
-                        </div>
-                    </div>
-                </form>
+    <div className="container">
+      <div className="row">
+        <div className="col-md-12">
+          <h1 className="text-center my-5">Admin Panel</h1>
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">UserID</th>
+                <th scope="col">ChatboxID</th>
+                <th scope="col">Email</th>
+                <th scope="col">Amount</th>
+                <th scope="col">LastDigitsOfAccount</th>
+                <th scope="col">PaymentMethod</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Payment Pic</th>
+                <th scope="col">Confirm Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((report, index) => (
+                <tr key={report.id}>
+                  <th scope="row">{index + 1}</th>
+                  <td>{report.userID}</td>
+                  <td>{report.chatboxID}</td>
+                  <td>{report.email}</td>
+                  <td>{report.amount}</td>
+                  <td>{report.lastDigitsOfAccount}</td>
+                  <td>{report.paymentMethod}</td>
+                  <td>{new Date(report.date).toLocaleDateString()}</td>
+                  <td>{report.Time}</td>
+                  <td>
+                    <button className="btn btn-link" onClick={(e) => openModal(e, report.paymentPic)}>View</button>
+                  </td>
+                  <td>
+        <button className="btn btn-success" onClick={() => confirmPayment(report.id)}>
+          Confirm Payment
+        </button>
+      </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <Modal show={showModal}
+            onClose={closeModal} imgSrc={currentImage} position={modalPosition} />
             </div>
-        </div>
-        </div>
-    </div>
-  )
-}
+          );
+        }
+        

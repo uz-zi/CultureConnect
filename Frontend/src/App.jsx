@@ -19,7 +19,7 @@ import UpdatePost from "./pages/userprofile/updatepost";
 import Aboutus from "./pages/AboutUs/aboutus";
 import Footerpage from "./pages/Footer/footer";
 import Feedbackpage from "./pages/Feedback/feedback";
-import Paymentpage from "./pages/Payment/paymentpage";
+import UserPaymentpage from "./pages/Payment/payment";
 import Homepage from "./pages/Home/home";
 import Blogpage from "./pages/Home/articlepage";
 import Addblog from "./pages/Home/addblog";
@@ -38,6 +38,9 @@ import MyOwnBlog from "./pages/Home/see_my_own_blogs"
 import AdminNavBar from "./pages/Navbar/AdminNavBar"
 import AdminViewSocialPost from "./pages/Admin/viewSocialpost"
 import AdminViewBlogPost from "./pages/Admin/find_blog"
+import AddNotification from "./pages/Admin/add_Notification"
+import Notifications from './pages/userprofile/notification'
+import AdminCheckPayment from "./pages/Payment/paymentpage"
 
 import { UserContext } from "./Context/UserContext";
 
@@ -79,8 +82,10 @@ function App() {
         <Route path="/user/chatbox" element={<><Nav3/><Chatbox/></>}></Route>
         <Route path="/allUsersProfile" element={<><Nav3/><AllUsersProfile/><Footerpage/></>}></Route>
         <Route path="/OtherUserProfile" element={<SeeOtherUserProfile/>}></Route>
-        
 
+
+        <Route path="/notification" element={<Notifications/>}></Route> 
+        <Route path="/ads" element={<Adds/>}></Route>   
 
          {/* -----------------------------------done for user */}
 
@@ -96,11 +101,15 @@ function App() {
         <Route path="/adminfeedback" element={<><AdminNavBar/><Adminfeedback/></>}></Route>
         <Route path="/adminViewSocialPost" element={<><AdminNavBar/><AdminViewSocialPost/></>}></Route>
         <Route path="/adminViewBlogPost" element={<><AdminNavBar/><AdminViewBlogPost/></>}></Route>
+        <Route path="/addads" element={<><AdminNavBar/><Adadds/></>}></Route>
+        <Route path="/addNotification" element={<><AdminNavBar/><AddNotification/></>}></Route> 
 
 
-        <Route path="/user/Payment" element={<><Paymentpage/><Footerpage/></>}></Route>
-        <Route path="/addads" element={<Adadds/>}></Route>
-        <Route path="/ads" element={<Adds/>}></Route>  
+        {"-----------------------------done till here-------------------------------"} 
+        
+
+        <Route path="/admin_check_payment" element={<><AdminNavBar/><AdminCheckPayment/><Footerpage/></>}></Route>
+        <Route path="/user/Payment" element={<><UserPaymentpage/><Footerpage/></>}></Route>
         
 
       </Routes>

@@ -3,10 +3,9 @@ const sequelize = require("../config");
 const jwtToken = require("jsonwebtoken");
 const crypto = require("crypto");
 const {
-  sendVerificationEmail,
-  report_confirm_email,
   email_to_reported_id_user,
-  update_of_reported_post
+  update_of_reported_post,
+  PaymentConfirmation
 } = require("./nodemailer.emailservice");
 const Image_Post = require("../models/imagePost.model");
 const Video_Post = require("../models/videoPost.model");
@@ -17,7 +16,9 @@ const Native = require("../models/native.model");
 const Reports = require("../models/Reports.model");
 const Blogs = require("../models/blogs.model");
 const Ads = require("../models/ads.model")
-
+const Notification = require("../models/notification.model")
+const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
+const Payment = require("../models/Payment.model")
 const Chatbox = require("../models/chatbox.model");
 
 const fetch_all_reports = async (req, res) => {
@@ -278,37 +279,6 @@ const adsGifUpload = multer({
   fileFilter: adsGifFileFilter
 });
 
-// const add_ads = async (req, res) => {
-//   try {
-//     await adsGifUpload.single('AdsGif')(req, res, async (err) => {
-//       if (req.fileValidationError) {
-//         return res.status(400).send(req.fileValidationError);
-//       }
-//       if (err) {
-//         return res.status(500).send(err.message);
-//       }
-
-//       try {
-//         const adsRecord = await Ads.create({
-//           AdsTitle: req.body.title, 
-//           AdsGif: req.file.path,
-//           Ad_Duration: req.body.duration
-//         });
-
-//         console.log("Uploaded ads GIF:", adsRecord);
-//         res.send("Successfully added record for the uploaded ads GIF.");
-//       } catch (error) {
-//         console.error("Failed to create new ad record: ", error);
-//         res.status(500).send(error.message);
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Failed to process ads upload: ", error);
-//     res.status(500).send(error.message);
-//   }
-// };
-
-
 function calculateExpiryDate(duration) {
   const durationMap = {
     '1 Day': { days: 1 },
@@ -376,51 +346,17 @@ const add_ads = async (req, res) => {
   }
 };
 
-
-
-
-
-
-  // cron.schedule('0 * * * *', async () => {
-  //   try {
-  //     const result = await Ads.destroy({
-  //       where: {
-  //         ExpiryDate: {
-  //           [Op.lt]: new Date() 
-  //         }
-  //       }
-  //     });
-  //     if (result > 0) {
-  //       console.log(`Expired ads removed: ${result}`);
-  //     } else {
-  //       console.log('No expired ads to remove at this time.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error removing expired ads:', error);
-  //   }
-  // });
-
-  
-
-
-
-
 const display_add = async (req, res) => {
   try {
-    // Get the count of all ads
     const count = await Ads.count();
 
-    // Get a random entry only if count is not zero
     if (count > 0) {
       const random = Math.floor(Math.random() * count);
-      // Again fetch the document at that index
       const randomAd = await Ads.findOne({ offset: random });
 
       if (!randomAd) {
         return res.status(404).send('No ads found.');
       }
-
-      // Send the random ad as a response
       res.status(200).json(randomAd);
     } else {
       res.status(404).send('No ads found.');
@@ -432,11 +368,95 @@ const display_add = async (req, res) => {
 };
 
 
+
+const saveNotificationData = async (req, res) => {
+  try {
+
+    await Notification.create({
+      Notification_Title: req.body.Notification_Title,
+      Notification_Description: req.body.Notification_Description,
+      Date: req.body.Date,
+      Time: req.body.Time,
+      City: req.body.City,
+      Area: req.body.Area,
+      State: req.body.State,
+      AddressNumber: req.body.AddressNumber,
+    });
+
+    await NotificationsOpenOrNot.update({ Notification_status: true }, {
+      where: {}
+    });
+  
+
+    res.status(201).send({ message: "Notification successfully submitted." });
+
+    
+  } catch (error) {
+    console.error("Failed to save notification data: ", error);
+    res.status(500).send({ message: "Failed to save notification data" });
+  }
+};
+
+
+const fetchAllNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.findAll({
+      
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(notifications);
+  } catch (error) {
+    console.error("Error fetching notifications: ", error);
+    res.status(500).send("Error fetching notifications");
+  }
+}
+
+
+
+const fetchAllPaymentData = async (req, res) => {
+  try {
+    const PaymentData = await Payment.findAll({
+      
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(PaymentData);
+  } catch (error) {
+    console.error("Error fetching notifications: ", error);
+    res.status(500).send("Error fetching notifications");
+  }
+}
+
+const paymentConfirmation = async (req, res) => {
+  try {
+    // Extract reportId from query parameters
+    const { reportId } = req.query;
+    console.log("---------------------------------",reportId)
+    
+    // Assuming PaymentConfirmation() requires the reportId as an argument
+    await PaymentConfirmation();
+    console.log("--------------------eamil sended")
+    // Send a success response
+    res.status(200).json({ message: 'Payment confirmed successfully' });
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    res.status(500).json({ message: 'Error confirming payment' });
+  }
+};
+
+
+
+
+
 module.exports = {
   fetch_all_reports,
   search_post_by_id,
   Delete_post,
   update_reporter_query ,
   add_ads,
-  display_add
+  display_add,
+  saveNotificationData,
+  fetchAllNotifications,
+  fetchAllPaymentData,
+  paymentConfirmation
+  
 };
