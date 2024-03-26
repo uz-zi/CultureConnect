@@ -9,6 +9,10 @@ router.delete("/deletepost", fuction.Delete_post)
 router.post("/report_query_update", fuction.update_reporter_query)
 router.post("/add_ads", fuction.add_ads)
 router.get("/display_ad", fuction.display_add)
+router.post("/addNotification", fuction.saveNotificationData)
+router.get("/getAllPaymentData", fuction.fetchAllPaymentData)
+router.post("/paymentConfirmation", fuction.paymentConfirmation)
+
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
