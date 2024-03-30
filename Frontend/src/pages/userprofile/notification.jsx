@@ -4,13 +4,8 @@ import logopic from "../../assets/logo.png";
 import { useLocation } from 'react-router-dom';
 
 
-export default function Notification() {
+export default function Notification({userId}) {
   const [notifications, setNotifications] = useState([]);
-
-
-  const location = useLocation();
-const { userId } = location.state || {};
-console.log("------------coming from icon", userId)
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -30,11 +25,11 @@ console.log("------------coming from icon", userId)
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", options);
+    return date.toDateString("en-US", options);
   };
 
   return (
-    <div>
+    <div className="absolute bg-white top-16 rounded-lg max-w-[400px] w-[400px] h-[400px] overflow-y-scroll overflow-x-hidden">
       <div className="flex flex-col gap-3">
         {notifications.map((notification, index) => (
           <div key={index} className="relative border border-gray-200 rounded-lg shadow-lg">

@@ -44,6 +44,12 @@ router.get ("/check_notification_state", fuction.check_new_notification_or_not)
 
 
 router.post("/payment_by_user", fuction.Payment_from_user)
+router.post("/Add_Comment", fuction.add_comment)
+router.get('/fetch_all_comments', fuction.fetch_comment)
+router.post("/payment_with_card", fuction.Payment_via_card)
+
+
+
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');

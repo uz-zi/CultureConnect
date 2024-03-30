@@ -6,6 +6,7 @@ import axios from "../../axios";
 
 import { UserContext } from "../../Context/UserContext";
 import React, { useEffect, useContext, useState } from "react";
+import Notification from "../userprofile/notification";
 
 export default function Navbar2() {
   
@@ -13,6 +14,7 @@ export default function Navbar2() {
   console.log("Users Role", user.roles);
   console.log("-----------------user ID for notification",user.id)
   const [hasNotification, setHasNotification] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
 
 
@@ -34,6 +36,10 @@ export default function Navbar2() {
       }
     }
   };
+
+  const handleNotificationCLick = () => {
+    setNotificationOpen(!notificationOpen)
+  }
 
 
 
@@ -88,7 +94,8 @@ export default function Navbar2() {
           <ul id="ul-design1">
 
           <li className="li-design1">
-  <a className="my-nav-link1" onClick={() => navigate("/notification", { state: { userId: user.id } })}>
+  <a className="my-nav-link1" onClick={handleNotificationCLick}>
+  {notificationOpen && <Notification userId={user.id} />}
     <i className={`fas fa-bell ${hasNotification ? "ring-animation" : ""}`}></i>
   </a>
 </li>

@@ -12,6 +12,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 const cors= require('cors');
+const DB = require("./models/chatbox.model")
 
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -41,4 +42,39 @@ userNamespace.on('connection', (socket) => {
       console.log(`Server running at http://${hostname}:${port2}/`);
     });
   });
-  
+
+
+  let chatMessages = [];
+
+
+userNamespace.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.emit('oldChats', chatMessages);
+
+    socket.on('sendChat', (message) => {
+        chatMessages.push(message);
+        
+        userNamespace.emit('newChat', message);
+    });
+
+    socket.on('deleteChat', (messageId) => {
+        chatMessages = chatMessages.filter(message => message.id !== messageId);
+
+        userNamespace.emit('chatDeleted', messageId);
+    });
+
+    socket.on('updateChat', (updatedMessage) => {
+        const index = chatMessages.findIndex(message => message.id === updatedMessage.id);
+        if(index !== -1) {
+            chatMessages[index] = updatedMessage;
+
+            userNamespace.emit('chatUpdated', updatedMessage);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});
+

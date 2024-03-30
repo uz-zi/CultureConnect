@@ -245,7 +245,7 @@ export default function UserFeed() {
                     )}
                     <div>
                       <div className="p-acts">
-                        <div className="p-act like">
+                        {/* <div className="p-act like">
                           <i
                             className="material-icons"
                             style={{ fontSize: 22 }}
@@ -253,7 +253,7 @@ export default function UserFeed() {
                             <ion-icon name="heart"></ion-icon>
                           </i>
                           <span>25</span>
-                        </div>
+                        </div> */}
                         <div className="p-act comment">
                           <i
                             className="material-icons"
@@ -261,7 +261,7 @@ export default function UserFeed() {
                           >
                             <ion-icon name="chatbox"></ion-icon>
                           </i>
-                          <span>1</span>
+                          {/* <span>1</span> */}
                         </div>
                       </div>
                     </div>

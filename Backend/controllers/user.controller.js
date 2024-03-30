@@ -1,167 +1,98 @@
 const User = require("../models/user.model");
 const sequelize = require("../config");
 const jwtToken = require("jsonwebtoken");
-const crypto = require('crypto');
-const { sendVerificationEmail, report_confirm_email } = require('./nodemailer.emailservice');
-const Image_Post = require("../models/imagePost.model")
-const Video_Post = require("../models/videoPost.model")
+const crypto = require("crypto");
+const {
+  sendVerificationEmail,
+  report_confirm_email,
+} = require("./nodemailer.emailservice");
+const Image_Post = require("../models/imagePost.model");
+const Video_Post = require("../models/videoPost.model");
 const multer = require("multer");
-const errorHandler = require("../utlis/errorhandandler")
-const { Op } = require('sequelize');
-const Native = require("../models/native.model")
-const Reports = require("../models/Reports.model")
-const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
-const Notification = require("../models/notification.model")
-const Payment = require("../models/Payment.model")
+const errorHandler = require("../utlis/errorhandandler");
+const { Op } = require("sequelize");
+const Native = require("../models/native.model");
+const Reports = require("../models/Reports.model");
+const NotificationsOpenOrNot = require("../models/notfication_open_or_not");
+const Notification = require("../models/notification.model");
+const Payment = require("../models/Payment.model");
+const Comment = require("../models/comment.like.model");
 
-const Chatbox = require("../models/chatbox.model")
+const Chatbox = require("../models/chatbox.model");
 
-const { OpenAI } = require('openai');
+const CardPayment = require("../models/Payment_with_card");
+require("dotenv").config();
+const stripe = require("stripe")(process.env.Stripe_Secret_Key);
 
-require('dotenv').config();
+const { OpenAI } = require("openai");
+
+
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
-const chatgpt = async(req,res) => {
-    
 
-    const model_name = "gpt-4";
-  async function getCategoryCountryFromModel(prompt) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: model_name,
-        messages: [
-          { role: "user", content: prompt }
-        ],
-      });
-      return response.choices[0].message.content
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  }
+const Payment_via_card = async (req, res) => {
+  const { payment_method_id, amount, success_url, cancel_url } = req.body; 
 
-
-  const model2_name = "gpt-4";
-  async function get_response_from_model(prompt) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: model2_name,
-        messages: [
-          { role: "user", content: prompt }
-        ],
-      });
-      return response.choices[0].message.content
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  }
-
-  function baseForm(word) {
-    if (word.endsWith('ies')) {
-      return word.slice(0, -3) + 'y';
-    } else if (word.endsWith('es')) {
-      return word.slice(0, -2);
-    } else if (word.endsWith('s')) {
-      return word.slice(0, -1);
-    }
-    return word;
-  }
-  
-  function checkConditions(category, country) {
-    // List of predefined words in their base form
-    const predefinedWords = [
-      "Geography",
-      "Historical Place",
-      "Culture",
-      "Famous Place",
-      "Festival",
-      "Community",
-      "Event",
-      "History",
-      "Food",
-      "Music",
-      "Landmark",
-      "Architecture",
-      "Monument",
-      "Housing",
-      "Transportation",
-      "Tradition",
-      "Religion",
-      "Education",
-      "Location",
-      "Hospitality",
-      "Islam",
-      "City",
-      "Dish",
-      "Cuisine",
-      "Language",
-      "Tourism"
-    ];
-  
-    const simplifiedPredefinedWords = predefinedWords.map(w => baseForm(w.toLowerCase()));
-  
-    const condition1 = simplifiedPredefinedWords.includes(baseForm(category.toLowerCase()));
-    const condition2 = country.trim().toLowerCase() === "pakistan";
-  
-    return condition1 && condition2;
-  }
-  
-  const promptInput = req.body.promptinput;
-  const validationPrompt = `${promptInput} only answer me in with one word:\n1. major category\n2. country name from which this prompt is related`;
+  console.log("---------------------------all data ", payment_method_id)
 
   try {
-    const response = await getCategoryCountryFromModel(validationPrompt);
+    // Convert amount to cents (for Stripe) if not already done so
+    const paymentAmount = amount * 100; // Assuming amount is passed in dollars
 
-    
-    const lines = response.split('\n');
-    if (lines.length >= 2) {
-      const category = lines[0].split('. ')[1]; // Assuming the format "1. Category"
-      const country = lines[1].split('. ')[1]; // Assuming the format "2. Country"
+    const paymentIntent = await stripe.paymentIntents.create({
+      payment_method: payment_method_id,
+      amount: paymentAmount,
+      currency: 'usd',
+      //confirmation_method: 'manual',
+      confirm: true,
+      return_url: success_url,
+      automatic_payment_methods: { enabled: true },
+      
+    });
 
-      if (checkConditions(category, country)) {
-        // Assuming getResponseFromModel is defined and returns a promise
-        const promptResponse = await get_response_from_model(promptInput);
-        res.status(200).send({ response: promptResponse, validationResponse: response });
-        console.log(promptResponse)
-      } else {
-        res.status(400).send(`Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: ${response}`);
-        console.log("400")
-      }
-    } else {
-      res.status(401).send("kindly please reenter your query");
-      console.log("401")
-    }
+   
+    const newPayment = await CardPayment.create({
+      Amount: paymentIntent.amount, 
+    });
+
+    res.status(200).json({
+      message: "Payment successful",
+      paymentIntentId: paymentIntent.id,
+    });
   } catch (error) {
-    res.status(500).send("kindly reenter your query");
-    console.log("500")
+    console.error("Error processing payment:", error);
+    res.status(500).json({ error: error.message });
   }
+};
 
-  
-
-}
 
 
 const allSocialMediaPosts = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const excludedUserId = req.query.id; 
+    const excludedUserId = req.query.id;
 
     const AllUsersID = await User.findAll({
       where: {
-        UserID: { [Op.ne]: excludedUserId }
+        UserID: { [Op.ne]: excludedUserId },
       },
-      attributes: ['UserID']
+      attributes: ["UserID"],
     });
 
-    const AllUsersIDs = [...new Set(AllUsersID.map(entry => entry.UserID))];
+    const AllUsersIDs = [...new Set(AllUsersID.map((entry) => entry.UserID))];
 
+    console.log(AllUsersIDs);
 
-    console.log(AllUsersIDs)
-
-    const Userphoto = await User.findAll({ where: { UserID: { [Op.in]: AllUsersIDs } } });
-    const images = await Image_Post.findAll({  where: { UserID: { [Op.in]: AllUsersIDs } } });
-    const videos = await Video_Post.findAll({ where: { UserID: { [Op.in]: AllUsersIDs } } });
-
+    const Userphoto = await User.findAll({
+      where: { UserID: { [Op.in]: AllUsersIDs } },
+    });
+    const images = await Image_Post.findAll({
+      where: { UserID: { [Op.in]: AllUsersIDs } },
+    });
+    const videos = await Video_Post.findAll({
+      where: { UserID: { [Op.in]: AllUsersIDs } },
+    });
 
     const combinedMedia = images.concat(videos);
 
@@ -173,28 +104,28 @@ const allSocialMediaPosts = async (req, res) => {
     combinedMedia.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     console.log("Media fetched and sorted successfully.");
-    res.status(200).send({Userphoto, combinedMedia});
-
+    res.status(200).send({ Userphoto, combinedMedia });
   } catch (error) {
     console.error("Error fetching media: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
-
+const model_name = "gpt-4";
+const model2_name = "gpt-4";
 
 const check_chat_exist_or_not = async (req, res) => {
-  const senderId = req.query.sender_id; 
-  const receiverId = req.query.id; 
+  const senderId = req.query.sender_id;
+  const receiverId = req.query.id;
 
-  console.log( "==============================",{ senderId, receiverId });
+  console.log("==============================", { senderId, receiverId });
 
   try {
     const existingChat = await Chatbox.findOne({
       where: {
         sender_id: senderId,
-        Receiver_Id: receiverId, 
-      }
+        Receiver_Id: receiverId,
+      },
     });
 
     if (!existingChat) {
@@ -213,52 +144,42 @@ const check_chat_exist_or_not = async (req, res) => {
   }
 };
 
-
 const add_chats = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const senderId = req.query.sender_id; 
+    const senderId = req.query.sender_id;
 
     const userId = await Chatbox.findAll({
-      attributes: ['Receiver_Id'], 
+      attributes: ["Receiver_Id"],
       where: {
-        sender_id: senderId 
-      }
+        sender_id: senderId,
+      },
     });
-    console.log("-------------------------------",userId)
-    const receiverIds = [...new Set(userId.map(entry => entry.Receiver_Id))];
+    console.log("-------------------------------", userId);
+    const receiverIds = [...new Set(userId.map((entry) => entry.Receiver_Id))];
 
     // Fetch user details for all receiver IDs
     const users = await User.findAll({
       where: { UserID: { [Op.in]: receiverIds } },
-      attributes: ['UserID', 'Name', 'Profile_pic']
+      attributes: ["UserID", "Name", "Profile_pic"],
     });
 
     const previousChats = await Chatbox.findAll({
       where: {
-        [Op.or]: [
-          { sender_id: senderId},
-        ]
+        [Op.or]: [{ sender_id: senderId }],
       },
-      order: [['createdAt', 'ASC']] 
+      order: [["createdAt", "ASC"]],
     });
 
     console.log("User photo:", users);
 
-    
-
     res.status(200).send({ users, previousChats });
-
   } catch (error) {
     console.error("Error in operation: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
-}
-
-
-
-
+};
 
 const allusers = async (req, res) => {
   try {
@@ -268,9 +189,9 @@ const allusers = async (req, res) => {
 
     const users = await User.findAll({
       where: {
-        UserID: { [Op.ne]: excludedUserId }
+        UserID: { [Op.ne]: excludedUserId },
       },
-      attributes: ['UserID', 'Name', 'Profile_pic', 'is_Online']
+      attributes: ["UserID", "Name", "Profile_pic", "is_Online"],
     });
 
     res.send(users);
@@ -280,17 +201,22 @@ const allusers = async (req, res) => {
   }
 };
 
-
 const see_other_user_profile = async (req, res) => {
   try {
     await sequelize.sync();
 
-    const Userphoto = await User.findOne({ where: { UserID: req.query.id }, attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo'] });
-    const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
-    const videos = await Video_Post.findAll({ where: { UserID: req.query.id } });
+    const Userphoto = await User.findOne({
+      where: { UserID: req.query.id },
+      attributes: ["UserID", "Name", "Profile_pic", "Cover_photo"],
+    });
+    const images = await Image_Post.findAll({
+      where: { UserID: req.query.id },
+    });
+    const videos = await Video_Post.findAll({
+      where: { UserID: req.query.id },
+    });
 
-    console.log("-----------", Userphoto)
-
+    console.log("-----------", Userphoto);
 
     const combinedMedia = images.concat(videos);
 
@@ -301,20 +227,12 @@ const see_other_user_profile = async (req, res) => {
 
     combinedMedia.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     console.log("Media fetched and sorted successfully.", combinedMedia);
-    res.status(200).send({Userphoto, combinedMedia});
-
+    res.status(200).send({ Userphoto, combinedMedia });
   } catch (error) {
     console.error("Error fetching media: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
-
-
-
-
-
-
-
 
 //---------get sepecific social post data---------
 
@@ -324,7 +242,7 @@ const get_imagePost_for_update = (req, res) => {
     .then(() => {
       Image_Post.findOne({
         where: {
-          UserID: req.body.id
+          id: req.body.id,
         },
       })
         .then((rs) => {
@@ -339,7 +257,6 @@ const get_imagePost_for_update = (req, res) => {
       console.error("Unable to create table : ", error);
     });
 };
-
 
 const get_videoPost_for_update = (req, res) => {
   sequelize
@@ -347,7 +264,7 @@ const get_videoPost_for_update = (req, res) => {
     .then(() => {
       Video_Post.findOne({
         where: {
-          UserID: req.body.id
+          id: req.body.id,
         },
       })
         .then((rs) => {
@@ -363,14 +280,13 @@ const get_videoPost_for_update = (req, res) => {
     });
 };
 
-
 //-------------DELETE SOCIAL POST--------------
 const deleteImagePost = async (req, res) => {
   try {
     await sequelize.sync();
 
     const result = await Image_Post.destroy({
-      where: { UserID: req.body.id },
+      where: { id: req.body.id },
     });
 
     if (!result) {
@@ -390,9 +306,8 @@ const deleteVideoPost = async (req, res) => {
     await sequelize.sync();
 
     const result = await Video_Post.destroy({
-      where: { UserID: req.body.id },
+      where: { id: req.body.id },
     });
-    
 
     if (!result) {
       return res.status(404).send(new errorHandler("ID does not exist", 404));
@@ -406,54 +321,50 @@ const deleteVideoPost = async (req, res) => {
   }
 };
 
-
 //---------setting of multer---------
 const image_storage = multer.diskStorage({
   destination: function (req, file, cb) {
-      cb(null, "./uploads/images");
+    cb(null, "./uploads/images");
   },
   filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
-  }
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 const image_fileFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
-      req.fileValidationError = 'Only image files are allowed!';
-      return cb(new Error('Only image files are allowed!'), false);
+  if (!file.originalname.match(/\.(gif|GIF|jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
+    req.fileValidationError = "Only image files are allowed!";
+    return cb(new Error("Only image files are allowed!"), false);
   }
   cb(null, true);
 };
 
-const image_upload = multer({ 
+const image_upload = multer({
   storage: image_storage,
-  fileFilter: image_fileFilter
+  fileFilter: image_fileFilter,
 });
-
-
 
 const video_storage = multer.diskStorage({
   destination: function (req, file, cb) {
-      cb(null, "./uploads/videos");
+    cb(null, "./uploads/videos");
   },
   filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
-  }
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 const video_fileFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(mp4|MP4|mov|MOV)$/)) {
-      req.fileValidationError = 'Only video files are allowed!';
-      return cb(new Error('Only video files are allowed!'), false);
+  if (!file.originalname.match(/\.(gif|GIF|mp4|MP4|mov|MOV)$/)) {
+    req.fileValidationError = "Only video files are allowed!";
+    return cb(new Error("Only video files are allowed!"), false);
   }
   cb(null, true);
 };
 
-const add_video_post = multer({ 
+const add_video_post = multer({
   storage: video_storage,
-  fileFilter: video_fileFilter
+  fileFilter: video_fileFilter,
 });
-
 
 //------------retrive user data for update profile---------
 const retrive_user_data = async (req, res) => {
@@ -466,34 +377,38 @@ const retrive_user_data = async (req, res) => {
     const user = await User.findOne({ where: { UserID: req.query.id } });
 
     if (!user) {
-      return res.status(404).send('No user found');
+      return res.status(404).send("No user found");
     }
 
     console.log("User data displayed");
     res.status(200).send(user); // Send the user object directly
-
   } catch (error) {
     console.error("Error fetching user data: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
-
-
 //------------UPDATE PROFILE------------
 const update_Profile = async (req, res) => {
-  image_upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'profile_image', maxCount: 1 }])(req, res, async (err) => {
+  image_upload.fields([
+    { name: "cover_image", maxCount: 1 },
+    { name: "profile_image", maxCount: 1 },
+  ])(req, res, async (err) => {
     if (req.fileValidationError) {
-        return res.status(400).send(req.fileValidationError);
+      return res.status(400).send(req.fileValidationError);
     }
     if (err) {
-        return res.status(500).send(err.message);
+      return res.status(500).send(err.message);
     }
 
     try {
       // Determine paths for cover and profile images
-      const coverImagePath = req.files['cover_image'] ? req.files['cover_image'][0].path : null;
-      const profileImagePath = req.files['profile_image'] ? req.files['profile_image'][0].path : null;
+      const coverImagePath = req.files["cover_image"]
+        ? req.files["cover_image"][0].path
+        : null;
+      const profileImagePath = req.files["profile_image"]
+        ? req.files["profile_image"][0].path
+        : null;
 
       // Prepare the update data
       const updateData = {
@@ -512,7 +427,9 @@ const update_Profile = async (req, res) => {
       }
 
       // Update user profile in the database
-      const [updatedRows] = await User.update(updateData, { where: { UserID: req.body.id } });
+      const [updatedRows] = await User.update(updateData, {
+        where: { UserID: req.body.id },
+      });
       if (updatedRows === 0) {
         res.status(404).send("User not found or no data updated");
       } else {
@@ -525,8 +442,6 @@ const update_Profile = async (req, res) => {
   });
 };
 
-
-
 //------------------------------------------------------------------------------------------test-----------------------
 //-------RETRIVE ALL MEDIA DATA----------
 const allMedia = async (req, res) => {
@@ -534,9 +449,12 @@ const allMedia = async (req, res) => {
     await sequelize.sync();
 
     const Userphoto = await User.findAll({ where: { UserID: req.query.id } });
-    const images = await Image_Post.findAll({ where: { UserID: req.query.id } });
-    const videos = await Video_Post.findAll({ where: { UserID: req.query.id } });
-
+    const images = await Image_Post.findAll({
+      where: { UserID: req.query.id },
+    });
+    const videos = await Video_Post.findAll({
+      where: { UserID: req.query.id },
+    });
 
     const combinedMedia = images.concat(videos);
 
@@ -548,21 +466,18 @@ const allMedia = async (req, res) => {
     combinedMedia.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     console.log("Media fetched and sorted successfully.");
-    res.status(200).send({Userphoto, combinedMedia});
-
+    res.status(200).send({ Userphoto, combinedMedia });
   } catch (error) {
     console.error("Error fetching media: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
-
-
 
 //----------IMAGE-----------
 
 const update_image_Post = async (req, res) => {
   try {
-    await image_upload.single('image')(req, res, async (err) => {
+    await image_upload.single("image")(req, res, async (err) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
@@ -576,14 +491,17 @@ const update_image_Post = async (req, res) => {
 
         const imagePath = req.file ? req.file.path : req.body.existingImagePath;
 
-        await Image_Post.update({
-          picture: imagePath,
-          img_caption: req.body.caption
-        }, {
-          where: {
-            UserID: req.body.id
+        await Image_Post.update(
+          {
+            picture: imagePath,
+            img_caption: req.body.caption,
+          },
+          {
+            where: {
+              id: req.body.id,
+            },
           }
-        });
+        );
 
         console.log("image updated:");
         res.send("Successfully updated record for the image.");
@@ -600,7 +518,7 @@ const update_image_Post = async (req, res) => {
 
 const add_image_Post = async (req, res) => {
   try {
-    await image_upload.single('image')(req, res, async (err) => {
+    await image_upload.single("image")(req, res, async (err) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
@@ -612,11 +530,10 @@ const add_image_Post = async (req, res) => {
         await sequelize.sync();
         console.log("Images table synced successfully!");
 
-        
         await Image_Post.create({
           picture: req.file.path,
           UserID: req.body.id,
-          img_caption: req.body.caption
+          img_caption: req.body.caption,
         });
 
         console.log("Uploaded file:");
@@ -632,12 +549,11 @@ const add_image_Post = async (req, res) => {
   }
 };
 
-
 //----------VIDEO-----------
 
 const update_video_Post = async (req, res) => {
   try {
-    await add_video_post.single('video')(req, res, async (err) => {
+    await add_video_post.single("video")(req, res, async (err) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
@@ -651,14 +567,17 @@ const update_video_Post = async (req, res) => {
 
         const videoPath = req.file ? req.file.path : req.body.existingVideoPath;
 
-        await Video_Post.update({
-          Video: videoPath,
-          Captions: req.body.caption
-        }, {
-          where: {
-            UserID: req.body.id
+        await Video_Post.update(
+          {
+            Video: videoPath,
+            Captions: req.body.caption,
+          },
+          {
+            where: {
+              id: req.body.id,
+            },
           }
-        });
+        );
 
         console.log("video updated");
         res.send("Successfully updated record for the video.");
@@ -673,11 +592,9 @@ const update_video_Post = async (req, res) => {
   }
 };
 
-
-
 const upload_video_Post = async (req, res) => {
   try {
-    await add_video_post.single('video')(req, res, async (err) => {
+    await add_video_post.single("video")(req, res, async (err) => {
       if (req.fileValidationError) {
         return res.status(400).send(req.fileValidationError);
       }
@@ -692,7 +609,7 @@ const upload_video_Post = async (req, res) => {
         await Video_Post.create({
           Video: req.file.path,
           Captions: req.body.text,
-          UserID: req.body.id 
+          UserID: req.body.id,
         });
 
         console.log("Uploaded file:", req.file);
@@ -708,68 +625,67 @@ const upload_video_Post = async (req, res) => {
   }
 };
 
-
-
-
 ////---------------------SignUP----------------
 
 let temporaryUsers = {};
 const signUpUser = async (req, res) => {
-    try {
-        const verificationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
-        
-        temporaryUsers[verificationCode] = {
-          FirstName: req.body.fname,
-          LastName: req.body.lname,
-          Name: req.body.name,
-          Email: req.body.email,
-          Password: req.body.pass,
-          PhoneNumber: req.body.pnum
-        };
+  try {
+    const verificationCode = crypto
+      .randomBytes(3)
+      .toString("hex")
+      .toUpperCase();
 
-        console.log(temporaryUsers);
+    temporaryUsers[verificationCode] = {
+      FirstName: req.body.fname,
+      LastName: req.body.lname,
+      Name: req.body.name,
+      Email: req.body.email,
+      Password: req.body.pass,
+      PhoneNumber: req.body.pnum,
+    };
 
-        await sendVerificationEmail(req.body.email, verificationCode);
-        res.send('Verification code sent to email.');
-    } catch (error) {
-        console.error("Error in signUpUser: ", error);
-        res.status(500).send(error.message);
-    }
+    console.log(temporaryUsers);
+
+    await sendVerificationEmail(req.body.email, verificationCode);
+    res.send("Verification code sent to email.");
+  } catch (error) {
+    console.error("Error in signUpUser: ", error);
+    res.status(500).send(error.message);
+  }
 };
 
 const verifyUser = async (req, res) => {
-  let counter = 0;  
+  let counter = 0;
   try {
-      console.log('Received verification code:', req.body.verificationCode);
-        const { verificationCode } = req.body;
-        console.log(temporaryUsers);
-        const tempUser = temporaryUsers[verificationCode];
-        console.log(tempUser);
+    console.log("Received verification code:", req.body.verificationCode);
+    const { verificationCode } = req.body;
+    console.log(temporaryUsers);
+    const tempUser = temporaryUsers[verificationCode];
+    console.log(tempUser);
 
-        if (!tempUser) {
-            return res.status(400).send('Invalid verification code');
-        }
-
-        const newUser = await User.create({
-            ...tempUser,
-            role: "user",
-            isVerified: true
-        });
-
-        await NotificationsOpenOrNot.create({
-          UserEmail: tempUser.Email
-        })
-
-
-        console.log("------------email", tempUser.Email)
-        delete temporaryUsers[verificationCode];
-
-        res.send('User verified and registered successfully');
-        console.log("-----------registered");
-    } catch (error) {
-        console.error("Error in verifyUser: ", error);
-        res.status(500).send(error.message);
+    if (!tempUser) {
+      return res.status(400).send("Invalid verification code");
     }
+
+    const newUser = await User.create({
+      ...tempUser,
+      role: "user",
+      isVerified: true,
+    });
+
+    await NotificationsOpenOrNot.create({
+      UserEmail: tempUser.Email,
+    });
+
+    console.log("------------email", tempUser.Email);
+    delete temporaryUsers[verificationCode];
+
+    res.send("User verified and registered successfully");
+    console.log("-----------registered");
+  } catch (error) {
+    console.error("Error in verifyUser: ", error);
+    res.status(500).send(error.message);
+  }
 };
 
 const signInUser = async (req, res) => {
@@ -779,7 +695,7 @@ const signInUser = async (req, res) => {
       where: {
         Password: req.body.pass,
         Email: req.body.email,
-      }
+      },
     });
 
     if (!user) {
@@ -788,13 +704,13 @@ const signInUser = async (req, res) => {
     } else {
       user.is_Online = true;
       await user.save();
-      const token = jwtToken.sign({ role: "user" }, 'dfghjk');
+      const token = jwtToken.sign({ role: "user" }, "dfghjk");
 
       const user_ID = await User.findOne({
-        attributes: ['UserID', 'role'],
+        attributes: ["UserID", "role"],
         where: {
-          Email: req.body.email
-        }
+          Email: req.body.email,
+        },
       });
 
       console.log(user);
@@ -802,7 +718,7 @@ const signInUser = async (req, res) => {
       res.status(200).send({
         user_ID,
         roles: token.Role,
-        accessToken: token
+        accessToken: token,
       });
     }
   } catch (error) {
@@ -811,123 +727,121 @@ const signInUser = async (req, res) => {
   }
 };
 
-
-
 //---------------------------ForgetPASSWORD----------------------
-  let temp_forget_pass = 0;
-  let temp_forgetpass_email = "";
-  const verify_forget_Password_email = async (req, res) => {
-    try {
-        await sequelize.sync();
+let temp_forget_pass = 0;
+let temp_forgetpass_email = "";
+const verify_forget_Password_email = async (req, res) => {
+  try {
+    await sequelize.sync();
 
-        const user = await User.findOne({
-            where: {
-                Email: req.body.email,
-            }
-        });
+    const user = await User.findOne({
+      where: {
+        Email: req.body.email,
+      },
+    });
 
-        if (user) {
-            const forgetpass_verificationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
-            await sendVerificationEmail(req.body.email, forgetpass_verificationCode);
-            res.send("Verification code sent to your email")
-            console.log(forgetpass_verificationCode);
+    if (user) {
+      const forgetpass_verificationCode = crypto
+        .randomBytes(3)
+        .toString("hex")
+        .toUpperCase();
+      await sendVerificationEmail(req.body.email, forgetpass_verificationCode);
+      res.send("Verification code sent to your email");
+      console.log(forgetpass_verificationCode);
 
-            temp_forget_pass = forgetpass_verificationCode;
-            temp_forgetpass_email = req.body.email;
-        } else {
-            res.status(404).send("Email not found");
-        }
-    } catch (error) {
-        console.error("Error: ", error.message);
-        res.status(500).send(error.message);
+      temp_forget_pass = forgetpass_verificationCode;
+      temp_forgetpass_email = req.body.email;
+    } else {
+      res.status(404).send("Email not found");
     }
+  } catch (error) {
+    console.error("Error: ", error.message);
+    res.status(500).send(error.message);
+  }
 };
 
 let isVerified = false;
 const verify_forgetpass = async (req, res) => {
   try {
-      const { verificationCode } = req.body;
-      if (temp_forget_pass !== verificationCode) {
-        return res.status(400).send('Invalid verification code');
+    const { verificationCode } = req.body;
+    if (temp_forget_pass !== verificationCode) {
+      return res.status(400).send("Invalid verification code");
     }
 
     isVerified = true;
-    res.send('User verified. You can now change your password.');
+    res.send("User verified. You can now change your password.");
   } catch (error) {
-      console.error("Error in verifyUser: ", error);
-      res.status(500).send(error.message);
+    console.error("Error in verifyUser: ", error);
+    res.status(500).send(error.message);
   }
 };
 
-
-const change_password = async(req, res) => {
-  try{
-
+const change_password = async (req, res) => {
+  try {
     if (!isVerified) {
-      return res.status(403).send('canot update the password');
+      return res.status(403).send("canot update the password");
     }
 
     await sequelize
-    .sync()
-    .then(async() => {
-     await User.update(
-        {
-          Password: req.body.pass,
-        },
-        {
-          where: { Email: temp_forgetpass_email }
-        }
-      )
-        .then((data) => {
-          if(!data)
+      .sync()
+      .then(async () => {
+        await User.update(
           {
-            res.send(new errorHandler("Email do not exist " , 404))
+            Password: req.body.pass,
+          },
+          {
+            where: { Email: temp_forgetpass_email },
           }
-          else{
-          console.log("Successfully updated record.");
-          res.status(200).send("data updated");
-          }
-        })
-        .catch((error) => {
-          console.error("Failed to update record : ", error);
-          res.status(500).send(error.message);
-        });
-    })
-    .catch((error) => {
-      console.error("Failed to connect table : ", error);
-      res.status(500).send(error.message);
-    });
-  }catch{
+        )
+          .then((data) => {
+            if (!data) {
+              res.send(new errorHandler("Email do not exist ", 404));
+            } else {
+              console.log("Successfully updated record.");
+              res.status(200).send("data updated");
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to update record : ", error);
+            res.status(500).send(error.message);
+          });
+      })
+      .catch((error) => {
+        console.error("Failed to connect table : ", error);
+        res.status(500).send(error.message);
+      });
+  } catch {
     console.error("Failed to update record : ", error);
     res.status(500).send(error.message);
   }
 };
 
-
 const logout = async (req, res) => {
   const userId = req.query.id;
   if (!userId) {
-    return res.status(400).send('User ID must be provided');
+    return res.status(400).send("User ID must be provided");
   }
 
   try {
     const user = await User.findOne({ where: { UserID: userId } });
     if (!user) {
-      return res.status(404).send('No user found');
+      return res.status(404).send("No user found");
     }
 
     await user.update({ is_Online: false });
 
     const updatedUser = await User.findOne({ where: { UserID: userId } });
-    console.log("Successfully logged out. User is online:", updatedUser.is_Online);
+    console.log(
+      "Successfully logged out. User is online:",
+      updatedUser.is_Online
+    );
 
-    res.status(200).send(updatedUser); 
+    res.status(200).send(updatedUser);
   } catch (error) {
     console.error("Error during logout: ", error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
-
 
 const get_email_of_user_for_report = async (req, res) => {
   try {
@@ -935,19 +849,19 @@ const get_email_of_user_for_report = async (req, res) => {
 
     let emailRecord = await User.findOne({
       where: { UserID: Id },
-      attributes: ['Email']
+      attributes: ["Email"],
     });
 
     if (!emailRecord) {
       emailRecord = await Native.findOne({
         where: { UserID: Id },
-        attributes: ['Email']
+        attributes: ["Email"],
       });
     }
 
     if (emailRecord) {
       res.send(emailRecord);
-      console.log("-----------email", emailRecord)
+      console.log("-----------email", emailRecord);
     } else {
       res.status(404).send("Email not found for the given UserID");
     }
@@ -957,210 +871,383 @@ const get_email_of_user_for_report = async (req, res) => {
   }
 };
 
-
-
 const saveTheReportDataInModel = async (req, res) => {
   try {
     await Reports.create({
-      Reported_Post_ID: req.body.post_id, 
+      Reported_Post_ID: req.body.post_id,
       postType: req.body.PostType,
       Reporter_email: req.body.Reporter_Email,
       reportjustification: req.body.ReportJustification,
-      Reporttitle: req.body.report_tile
+      Reporttitle: req.body.report_tile,
     });
 
-
     await report_confirm_email(req.body.Reporter_Email);
-    res.status(201).send({ message: "Report successfully submitted and email sent." });
+    res
+      .status(201)
+      .send({ message: "Report successfully submitted and email sent." });
   } catch (error) {
     console.error("Failed to save report data: ", error);
     res.status(500).send({ message: "Failed to save report data" });
   }
 };
 
-
 const check_new_notification_or_not = async (req, res) => {
-
   const Id = req.query.id;
 
-  console.log("-------------id coming from frontend is", Id)
-  try{
-
-  let emailRecord = await User.findOne({
-    where: { UserID: Id },
-    attributes: ['Email']
-  });
-
-  if (!emailRecord) {
-    emailRecord = await Native.findOne({
-      where: { UserID: Id },
-      attributes: ['Email']
-    });
-  }
-
-  console.log("---------------email found is", emailRecord)
-
-  const Email = emailRecord ? emailRecord.dataValues.Email : null;
-
-  const status = await NotificationsOpenOrNot.findOne({
-    where: {UserEmail: Email}
-  });
-
-  res.send(status.Notification_status)
-
-  console.log("----------------status sending to frontend is", status.Notification_status)
-}
-catch(error) {
-  console.error("Error fetching status: ", error);
-  res.status(500).send("Error fetching status");
-}
-
-
-
-}
-
-
-const fetchAllNotifications = async (req, res) => {
-
-  const Id = req.query.id;
-  console.log("-------------id coming from frontend is", Id)
+  console.log("-------------id coming from frontend is", Id);
   try {
-    const notifications = await Notification.findAll({
-      
-      order: [['createdAt', 'DESC']]
-    });
-
     let emailRecord = await User.findOne({
       where: { UserID: Id },
-      attributes: ['Email']
+      attributes: ["Email"],
     });
 
     if (!emailRecord) {
       emailRecord = await Native.findOne({
         where: { UserID: Id },
-        attributes: ['Email']
+        attributes: ["Email"],
+      });
+    }
+
+    console.log("---------------email found is", emailRecord);
+
+    const Email = emailRecord ? emailRecord.dataValues.Email : null;
+
+    const status = await NotificationsOpenOrNot.findOne({
+      where: { UserEmail: Email },
+    });
+
+    res.send(status.Notification_status);
+
+    console.log(
+      "----------------status sending to frontend is",
+      status.Notification_status
+    );
+  } catch (error) {
+    console.error("Error fetching status: ", error);
+    res.status(500).send("Error fetching status");
+  }
+};
+
+const fetchAllNotifications = async (req, res) => {
+  const Id = req.query.id;
+  console.log("-------------id coming from frontend is", Id);
+  try {
+    const notifications = await Notification.findAll({
+      order: [["createdAt", "DESC"]],
+    });
+
+    let emailRecord = await User.findOne({
+      where: { UserID: Id },
+      attributes: ["Email"],
+    });
+
+    if (!emailRecord) {
+      emailRecord = await Native.findOne({
+        where: { UserID: Id },
+        attributes: ["Email"],
       });
     }
 
     const Email = emailRecord ? emailRecord.dataValues.Email : null;
 
-    await NotificationsOpenOrNot.update({ Notification_status:false }, {
-      where: {UserEmail: Email}
-    });
+    await NotificationsOpenOrNot.update(
+      { Notification_status: false },
+      {
+        where: { UserEmail: Email },
+      }
+    );
 
-
-    console.log("------------------------------state turn into false" )
+    console.log("------------------------------state turn into false");
     res.json(notifications);
-
   } catch (error) {
     console.error("Error fetching notifications: ", error);
     res.status(500).send("Error fetching notifications");
   }
-
-
-
-}
+};
 
 //--------------------------------------------------------------------------------------payment method
 
 const paymentPicStorage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, "./uploads/payment_pics");
-    },
-    filename: function(req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/payment_pics");
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 // Configure file filter for image files
 const paymentPicFileFilter = (req, file, cb) => {
-    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-        req.fileValidationError = "Only image files are allowed!";
-        return cb(new Error("Only image files are allowed!"), false);
-    }
-    cb(null, true);
+  if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+    req.fileValidationError = "Only image files are allowed!";
+    return cb(new Error("Only image files are allowed!"), false);
+  }
+  cb(null, true);
 };
 
 // Set up Multer for image upload
 const paymentPicUpload = multer({
-    storage: paymentPicStorage,
-    fileFilter: paymentPicFileFilter
+  storage: paymentPicStorage,
+  fileFilter: paymentPicFileFilter,
 });
 
 const Payment_from_user = async (req, res) => {
-    try {
-        await paymentPicUpload.single('Payment_Pic')(req, res, async (err) => {
-            if (req.fileValidationError) {
-                return res.status(400).send(req.fileValidationError);
-            }
-            if (err) {
-                return res.status(500).send(err.message);
-            }
+  try {
+    await paymentPicUpload.single("Payment_Pic")(req, res, async (err) => {
+      if (req.fileValidationError) {
+        return res.status(400).send(req.fileValidationError);
+      }
+      if (err) {
+        return res.status(500).send(err.message);
+      }
 
-            try {
-              const newPayment = await Payment.create({
-                  // UserID: req.body.UserID,
-                  // ChatID: req.body.ChatID,
-                  // Email: req.body.Email,
-                  Amount: req.body.Amount,
-                  Last_four_digit_of_account: req.body.Last_four_digit_of_account,
-                  Payment_Pic: req.file.path, 
-                  Payment_Method: req.body.Payment_Method,
-                  Date: req.body.Date,
-                  Time: req.body.Time,
-                  
-              });
-          
-              console.log("Payment record created successfully!");
-              res.send({ message: "Payment record created successfully!", payment: newPayment });
-          } catch (error) {
-              console.error("Failed to create payment record: ", error);
-              res.status(500).send(error.message);
-          }
+      try {
+        const newPayment = await Payment.create({
+          // UserID: req.body.UserID,
+          // ChatID: req.body.ChatID,
+          // Email: req.body.Email,
+          Amount: req.body.Amount,
+          Last_four_digit_of_account: req.body.Last_four_digit_of_account,
+          Payment_Pic: req.file.path,
+          Payment_Method: req.body.Payment_Method,
+          Date: req.body.Date,
+          Time: req.body.Time,
         });
-    } catch (error) {
-        console.error("Failed to process payment data: ", error);
+
+        console.log("Payment record created successfully!");
+        res.send({
+          message: "Payment record created successfully!",
+          payment: newPayment,
+        });
+      } catch (error) {
+        console.error("Failed to create payment record: ", error);
         res.status(500).send(error.message);
-    }
+      }
+    });
+  } catch (error) {
+    console.error("Failed to process payment data: ", error);
+    res.status(500).send(error.message);
+  }
 };
 
+// const Payment_via_card = async (req, res) => {
+//   try {
+//     const newPayment = await Card_payment.create({
+//       // UserID: req.body.UserID,
+//       // ChatID: req.body.ChatID,
+//       // Email: req.body.Email,
+//       Amount: req.body.Amount,
+//     });
+//     console.log("Crad Payment record created successfully!");
+//     res.send({
+//       message: "Card Payment record created successfully!",
+//       payment: newPayment,
+//     });
+//   } catch {
+//     console.error("Failed to create payment record: ", error);
+//     res.status(500).send(error.message);
+//   }
+// };
+
+
+
+
+// const Payment_via_card = async (req, res) => {
+//   try {
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: req.body.amount * 100, 
+//       currency: "usd", 
+//       description: "Payment via card",
+//     });
+
+//     // Record the payment in your database
+//     const newPayment = await Card_payment.create({
+//       // userID: req.body.userID,
+//       // chatID: req.body.chatID,
+//       // email: req.body.email,
+//       amount: req.body.amount,
+//       // Add other fields as required
+//     });
+
+//     console.log("Card Payment record created successfully!");
+//     res.status(200).json({
+//       message: "Card Payment record created successfully!",
+//       payment: newPayment,
+//       clientSecret: paymentIntent.client_secret, 
+//     });
+//   } catch (error) {
+//     console.error("Failed to create payment record: ", error);
+//     res.status(500).send(error.message);
+//   }
+// };
 
 
 
 
 
 
-  module.exports = {
-    signInUser,
-    signUpUser,
-    verifyUser,
-    verify_forget_Password_email,
-    verify_forgetpass,
-    change_password,
-    upload_video_Post,
-    add_image_Post,
-    allMedia,
-    update_Profile,
-    retrive_user_data,
-    update_image_Post,
-    update_video_Post,
-    deleteImagePost,
-    deleteVideoPost,
-    get_imagePost_for_update,
-    get_videoPost_for_update,
-    allusers,
-    see_other_user_profile,
-    logout,
-    add_chats,
-    check_chat_exist_or_not,
-    allSocialMediaPosts,
-    chatgpt,
 
 
+//----------------------------------------------comments
 
-    get_email_of_user_for_report,
-    saveTheReportDataInModel,
-    fetchAllNotifications,
-    check_new_notification_or_not,
-    Payment_from_user
+const add_comment = async (req, res) => {
+  try {
+    await sequelize.sync();
+
+    const CommenterUerID = req.body.UserID;
+    const PostID = req.body.PostID;
+    const UserComment = req.body.Comment;
+
+    let CommentterName = await User.findOne({
+      where: { UserID: CommenterUerID },
+      attributes: ["Name"],
+    });
+
+    if (!CommentterName) {
+      CommentterName = await Native.findOne({
+        where: { UserID: CommenterUerID },
+        attributes: ["Name"],
+      });
+    }
+
+    const Name = CommentterName ? CommentterName.dataValues.Name : null;
+
+    console.log("-----------------", Name);
+
+    const commentdata = await Comment.create({
+      CommenterName: Name,
+      Comment: UserComment,
+      PostId: PostID,
+    });
+
+    console.log(
+      "--------------- data coming from frontend",
+      CommenterUerID,
+      PostID,
+      UserComment
+    );
+
+    console.log("--------------data saving to DB", commentdata);
+
+    res.send("comment uploaded");
+  } catch (error) {
+    console.error("Error fetching media: ", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const fetch_comment = async (req, res) => {
+  try {
+    const PostID = req.query.Post_ID;
+
+    console.log(
+      "-----------------------post id coming from frontend to fetch comments",
+      PostID
+    );
+
+    await sequelize.sync();
+
+    let CommentterName = await Comment.findAll({
+      where: { PostId: PostID },
+      order: [["createdAt", "DESC"]],
+    });
+
+    console.log("-----------------", CommentterName);
+
+    res.send(CommentterName);
+  } catch (error) {
+    console.error("Error fetching comments: ", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const chatgpt = async (req, res) => {
+  try {
+    const prompt = req.body.promptinput;
+
+    // Create a Thread
+    const thread = await openai.beta.threads.create();
+
+    // Add a Message to the Thread with the user's prompt
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: prompt,
+    });
+
+    // Run the Thread with the Assistant
+    let run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: "asst_2vwpWnGodEIrMbSQ8FS0TkYi",
+    });
+
+    // Poll the Run object for a terminal status
+    while (["queued", "in_progress", "cancelling"].includes(run.status)) {
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
+      run = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+    }
+
+    // Once the Run completes, list the Messages added to the Thread by the Assistant
+    if (run.status === "completed") {
+      const messages = await openai.beta.threads.messages.list(run.thread_id);
+      let assistantResponse = null;
+      for (const message of messages.data) {
+        if (message.role === "assistant") {
+          // Assuming the first text block in each message is the assistant's response
+          assistantResponse = message.content[0].text.value;
+          break;
+        }
+      }
+
+      // Send the response back to the client
+      if (assistantResponse) {
+        res.status(200).send({ response: assistantResponse });
+      } else {
+        res.status(404).send({ error: "No response from assistant." });
+      }
+    } else {
+      res.status(500).send({ error: `Run status: ${run.status}` });
+    }
+  } catch (error) {
+    console.error("Error during OpenAI interaction:", error);
+    res
+      .status(500)
+      .send({ error: "An error occurred while processing your request." });
+  }
+};
+
+module.exports = {
+  signInUser,
+  signUpUser,
+  verifyUser,
+  verify_forget_Password_email,
+  verify_forgetpass,
+  change_password,
+  upload_video_Post,
+  add_image_Post,
+  allMedia,
+  update_Profile,
+  retrive_user_data,
+
+  update_image_Post,
+  update_video_Post,
+  deleteImagePost,
+  deleteVideoPost,
+  get_imagePost_for_update,
+  get_videoPost_for_update,
+
+  allusers,
+  see_other_user_profile,
+  logout,
+  add_chats,
+  check_chat_exist_or_not,
+  allSocialMediaPosts,
+  chatgpt,
+
+  get_email_of_user_for_report,
+  saveTheReportDataInModel,
+  fetchAllNotifications,
+  check_new_notification_or_not,
+  Payment_from_user,
+  add_comment,
+  fetch_comment,
+  Payment_via_card
 };

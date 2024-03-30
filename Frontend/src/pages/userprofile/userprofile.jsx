@@ -127,6 +127,8 @@ export default function userprofile() {
           params: { id: id },
         });
 
+        console.log("-----------------userprofile", response.data)
+
         if (response.data.Userphoto[0].Profile_pic) {
           setProfileImage(
             `http://127.0.0.1:5000/${response.data.Userphoto[0].Profile_pic}`
@@ -151,6 +153,8 @@ export default function userprofile() {
         const response = await axios.get("/user/socialdata", {
           params: { id: id },
         });
+
+        console.log("-----------------userprofile", response.data)
 
         if (response.data.Userphoto[0].Profile_pic) {
           setProfileImage(
@@ -253,7 +257,7 @@ export default function userprofile() {
           <div className="tb">
             <div className="td" id="l-col"></div>
             <div className="td" id="m-col">
-              <div className="m-mrg" id="p-tabs">
+              {/* <div className="m-mrg" id="p-tabs">
                 <div className="tb">
                   <div className="td">
                     <div className="tb" id="p-tabs-m">
@@ -272,7 +276,7 @@ export default function userprofile() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div className="m-mrg" id="composer">
                 <div id="c-tabs-cvr">
                   <div className="tb" id="c-tabs">
@@ -375,7 +379,7 @@ export default function userprofile() {
                               <button
                                 onClick={() =>
                                   handleEditPost(
-                                    post.UserID,
+                                    post.id,
                                     post.img_caption || post.Captions,
                                     post.picture || post.Video,
                                     post.img_caption ? "image" : "video"
@@ -401,7 +405,7 @@ export default function userprofile() {
                               <button
                                 onClick={() =>
                                   handleDelete(
-                                    post.UserID,
+                                    post.id,
                                     post.picture,
                                     post.Video
                                   )
@@ -432,7 +436,7 @@ export default function userprofile() {
                     </a>
                     <div>
                       <div className="p-acts">
-                        <div className="p-act like">
+                        {/* <div className="p-act like">
                           <i
                             className="material-icons"
                             style={{ fontSize: 22 }}
@@ -440,7 +444,7 @@ export default function userprofile() {
                             <ion-icon name="heart"></ion-icon>
                           </i>
                           <span>25</span>
-                        </div>
+                        </div> */}
                         <div className="p-act comment">
                           <i
                             className="material-icons"
@@ -448,7 +452,7 @@ export default function userprofile() {
                           >
                             <ion-icon name="chatbox"></ion-icon>
                           </i>
-                          <span>1</span>
+                          {/* <span>1</span> */}
                         </div>
                       </div>
                     </div>

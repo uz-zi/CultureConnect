@@ -41,6 +41,8 @@ import AdminViewBlogPost from "./pages/Admin/find_blog"
 import AddNotification from "./pages/Admin/add_Notification"
 import Notifications from './pages/userprofile/notification'
 import AdminCheckPayment from "./pages/Payment/paymentpage"
+import AdminSignIn from "./pages/Admin/adminSignIn"
+import PaymentByCard from "./pages/Payment/payment_with _card"
 
 import { UserContext } from "./Context/UserContext";
 
@@ -49,16 +51,17 @@ function App() {
   const [user, setUser] = useState({});
 
   useEffect(() => {
-    // Fetch the user from local storage on component mount
     const storedUser = JSON.parse(localStorage.getItem('user'));
 
     if (storedUser) {
       setUser(storedUser);
     }
-  }, []); //
+  }, []); 
 
   return (
     <>
+
+    
     <UserContext.Provider value={{ user, setUser }}>
       <BrowserRouter>
       <Routes>
@@ -69,8 +72,7 @@ function App() {
         <Route path="/confirmemail" element={<ConfirmEmail/>}></Route>
         <Route path="/user/forgetPassword" element={<ConfirmEmail/>} ></Route>
 
-
-        <Route path="/user/userprofile" element={<div> <Adds/> <Userprofile/> </div>}></Route>
+        {/* <Route path="/user/userprofile" element={<div> <Adds/> <Userprofile/> </div>}></Route>
         <Route path="/user/socialhomepage" element={<div><Adds/><Socialhomepage/></div>}></Route>
         <Route path="/user/Social_add_post" element={<div> <Adds/><Social_add_post/></div>}></Route>
         <Route path="/user/update_post" element={<div> <Adds/><UpdatePost/></div>}></Route>
@@ -83,11 +85,8 @@ function App() {
         <Route path="/allUsersProfile" element={<><Nav3/><AllUsersProfile/><Footerpage/></>}></Route>
         <Route path="/OtherUserProfile" element={<SeeOtherUserProfile/>}></Route>
 
-
         <Route path="/notification" element={<Notifications/>}></Route> 
         <Route path="/ads" element={<Adds/>}></Route>   
-
-         {/* -----------------------------------done for user */}
 
          <Route path="/user/seeBlogs" element={<><Navbar2/><Blogpage/><Footerpage/></>}></Route>
          <Route path="/user/NativeProfile" element={<><Navbar2/><NativeProfile/><Footerpage/></>}></Route>
@@ -97,19 +96,51 @@ function App() {
          <Route path="/user/NativeServices" element={<><Navbar2/><Servicepage/><Footerpage/></>}></Route>
 
          <Route path="/user/Feedback" element={<><Feedbackpage/><Footerpage/></>}></Route>
-        
+         */}
+
+
+<Route path="/user/userprofile" element={<Protected component={<div> <Adds/> <Userprofile/> </div>} allowableuser="user"/>}></Route>
+<Route path="/user/socialhomepage" element={<Protected component={<div><Adds/><Socialhomepage/></div>} allowableuser="user"/>}></Route>
+<Route path="/user/Social_add_post" element={<Protected component={<div> <Adds/><Social_add_post/></div>} allowableuser="user"/>}></Route>
+<Route path="/user/update_post" element={<Protected component={<div> <Adds/><UpdatePost/></div>} allowableuser="user"/>}></Route>
+<Route path="/user/Updtae_prfile" element={<Protected component={<Updtae_prfile/>} allowableuser="user"/>}></Route>
+
+<Route path="/user/Homepage" element={<Protected component={<div><Chatbot/><Navbar2/><Homepage/><Footerpage/></div>} allowableuser="user"/>}></Route>
+
+<Route path="/user/chatbox" element={<Protected component={<><Nav3/><Chatbox/></>} allowableuser="user"/>}></Route>
+<Route path="/allUsersProfile" element={<Protected component={<><Nav3/><AllUsersProfile/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/OtherUserProfile" element={<Protected component={<SeeOtherUserProfile/>} allowableuser="user"/>}></Route>
+
+<Route path="/notification" element={<Protected component={<Notifications/>} allowableuser="user"/>}></Route> 
+<Route path="/ads" element={<Protected component={<Adds/>} allowableuser="user"/>}></Route>   
+
+<Route path="/user/seeBlogs" element={<Protected component={<><Navbar2/><Blogpage/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/user/NativeProfile" element={<Protected component={<><Navbar2/><NativeProfile/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/user/Addblog" element={<Protected component={<><Navbar2/><Addblog/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/user/one_native_all_blog" element={<Protected component={<><Navbar2/><OneNativeallblog/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/user/native_my_own_blog" element={<Protected component={<><Navbar2/><MyOwnBlog/><Footerpage/></>} allowableuser="user"/>}></Route>
+<Route path="/user/NativeServices" element={<Protected component={<><Navbar2/><Servicepage/><Footerpage/></>} allowableuser="user"/>}></Route>
+
+<Route path="/user/Feedback" element={<Protected component={<><Feedbackpage/><Footerpage/></>} allowableuser="user"/>}></Route>
+
+
+
+
         <Route path="/adminfeedback" element={<><AdminNavBar/><Adminfeedback/></>}></Route>
         <Route path="/adminViewSocialPost" element={<><AdminNavBar/><AdminViewSocialPost/></>}></Route>
         <Route path="/adminViewBlogPost" element={<><AdminNavBar/><AdminViewBlogPost/></>}></Route>
         <Route path="/addads" element={<><AdminNavBar/><Adadds/></>}></Route>
         <Route path="/addNotification" element={<><AdminNavBar/><AddNotification/></>}></Route> 
+        <Route path="/admin_check_payment" element={<><AdminNavBar/><AdminCheckPayment/></>}></Route>
+        <Route path="/Admin/adminSignin" element={<AdminSignIn/>}></Route>
 
 
-        {"-----------------------------done till here-------------------------------"} 
+      
         
 
-        <Route path="/admin_check_payment" element={<><AdminNavBar/><AdminCheckPayment/><Footerpage/></>}></Route>
+        
         <Route path="/user/Payment" element={<><UserPaymentpage/><Footerpage/></>}></Route>
+        <Route path="/user/Paymen_with_card" element={<><PaymentByCard/><Footerpage/></>}></Route>
         
 
       </Routes>

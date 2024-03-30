@@ -1,16 +1,19 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config");
 
-//------create table with feilds--------
-const Admin = sequelize.define("admin", {
-  Email: {
+const Comments = sequelize.define("comments", {
+  CommenterName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  Password: {
+   Comment: {
     type: DataTypes.STRING,
     allowNull: false,
-  }
+  },
+  PostId: {
+    type: DataTypes.STRING,
+  },
 });
 
-module.exports = Admin;
+module.exports = Comments;
+

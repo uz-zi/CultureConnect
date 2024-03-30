@@ -109,8 +109,8 @@ const handleFieldQualificationChange = (e) => {
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    const emailRegex =
-      /^(?:[a-zA-Z0-9._%+-]+@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
+    
+    const emailRegex = /^(?:(?:[a-zA-Z][a-zA-Z0-9._%+-]{4,})@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
     setEmail(value);
     setEmailError(!emailRegex.test(value));
   };

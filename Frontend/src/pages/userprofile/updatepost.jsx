@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import { useContext } from "react";
 
+
 export default function UpdatePost() {
   const {user} = useContext(UserContext);
   console.log('Users Role', user.roles);

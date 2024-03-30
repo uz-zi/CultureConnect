@@ -10,128 +10,55 @@ const multer = require("multer");
 const errorHandler = require("../utlis/errorhandandler")
 const { Op } = require('sequelize');
 const Chatbox = require("../models/chatbox.model")
-const { OpenAI } = require('openai');
+
 const Blogs = require("../models/blogs.model");
 const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
 
-
+const { OpenAI } = require('openai');
 require('dotenv').config();
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
-let counter = 0;
 
-const chatgpt = async(req,res) => {
-    
-
-    const model_name = "gpt-4";
-  async function getCategoryCountryFromModel(prompt) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: model_name,
-        messages: [
-          { role: "user", content: prompt }
-        ],
-      });
-      return response.choices[0].message.content
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  }
-
-
-  const model2_name = "gpt-4";
-  async function get_response_from_model(prompt) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: model2_name,
-        messages: [
-          { role: "user", content: prompt }
-        ],
-      });
-      return response.choices[0].message.content
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  }
-
-  function baseForm(word) {
-    if (word.endsWith('ies')) {
-      return word.slice(0, -3) + 'y';
-    } else if (word.endsWith('es')) {
-      return word.slice(0, -2);
-    } else if (word.endsWith('s')) {
-      return word.slice(0, -1);
-    }
-    return word;
-  }
-  
-  function checkConditions(category, country) {
-    // List of predefined words in their base form
-    const predefinedWords = [
-      "Geography",
-      "Historical Place",
-      "Culture",
-      "Famous Place",
-      "Festival",
-      "Community",
-      "Event",
-      "History",
-      "Food",
-      "Music",
-      "Landmark",
-      "Architecture",
-      "Monument",
-      "Housing",
-      "Transportation",
-      "Tradition",
-      "Religion",
-      "Education",
-      "Location",
-      "Hospitality",
-      "Islam",
-      "City",
-      "Dish",
-      "Cuisine",
-      "Language",
-      "Tourism"
-    ];
-  
-    const simplifiedPredefinedWords = predefinedWords.map(w => baseForm(w.toLowerCase()));
-  
-    const condition1 = simplifiedPredefinedWords.includes(baseForm(category.toLowerCase()));
-    const condition2 = country.trim().toLowerCase() === "pakistan";
-  
-    return condition1 && condition2;
-  }
-  
-  const promptInput = req.body.promptinput;
-  const validationPrompt = `${promptInput} only answer me in with one word:\n1. major category\n2. country name from which this prompt is related`;
-
+const chatgpt = async (req, res) => {
   try {
-    const response = await getCategoryCountryFromModel(validationPrompt);
+    const prompt = req.body.promptinput;
+    const thread = await openai.beta.threads.create();
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: prompt
+    });
 
-    // Parse the response to extract category and country
-    const lines = response.split('\n');
-    if (lines.length >= 2) {
-      const category = lines[0].split('. ')[1]; // Assuming the format "1. Category"
-      const country = lines[1].split('. ')[1]; // Assuming the format "2. Country"
-
-      if (checkConditions(category, country)) {
-        // Assuming getResponseFromModel is defined and returns a promise
-        const promptResponse = await get_response_from_model(promptInput);
-        res.status(200).send({ response: promptResponse, validationResponse: response });
+    let run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: "asst_2vwpWnGodEIrMbSQ8FS0TkYi" 
+    });
+    
+    while (['queued', 'in_progress', 'cancelling'].includes(run.status)) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      run = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+    }
+    
+    if (run.status === 'completed') {
+      const messages = await openai.beta.threads.messages.list(run.thread_id);
+      let assistantResponse = null;
+      for (const message of messages.data) {
+        if (message.role === "assistant") {
+          assistantResponse = message.content[0].text.value;
+          break;
+        }
+      }
+      
+      if (assistantResponse) {
+        res.status(200).send({ response: assistantResponse });
       } else {
-        res.status(400).send(`Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: ${response}`);
+        res.status(404).send({ error: "No response from assistant." });
       }
     } else {
-      res.status(400).send("Invalid response format.");
+      res.status(500).send({ error: `Run status: ${run.status}` });
     }
   } catch (error) {
-    res.status(500).send("An error occurred while processing your request.");
+    console.error("Error during OpenAI interaction:", error);
+    res.status(500).send({ error: "An error occurred while processing your request." });
   }
-
-  
-
-}
+};
 
 
 
@@ -311,7 +238,7 @@ const deleteImagePost = async (req, res) => {
     await sequelize.sync();
 
     const result = await Image_Post.destroy({
-      where: { UserID: req.body.id },
+      where: { id: req.body.id },
     });
 
     if (!result) {
@@ -331,7 +258,7 @@ const deleteVideoPost = async (req, res) => {
     await sequelize.sync();
 
     const result = await Video_Post.destroy({
-      where: { UserID: req.body.id },
+      where: { id: req.body.id },
     });
     
 
@@ -387,7 +314,7 @@ const video_storage = multer.diskStorage({
 });
 
 const video_fileFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(mp4|MP4|mov|MOV)$/)) {
+  if (!file.originalname.match(/\.(gif|GIF|mp4|MP4|mov|MOV)$/)) {
       req.fileValidationError = 'Only video files are allowed!';
       return cb(new Error('Only video files are allowed!'), false);
   }
@@ -412,7 +339,7 @@ const Blog_image_storage = multer.diskStorage({
 
 // Set up file filter to check for image files
 const Blog_image_fileFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png)$/i)) {
+  if (!file.originalname.match(/\.(gif|GIF|jpg|jpeg|png)$/i)) {
     req.fileValidationError = 'Only image files are allowed!';
     cb(new Error('Only image files are allowed!'), false);
   } else {
@@ -557,7 +484,7 @@ const update_image_Post = async (req, res) => {
           img_caption: req.body.caption
         }, {
           where: {
-            UserID: req.body.id
+            id: req.body.id
           }
         });
 
@@ -631,7 +558,7 @@ const update_video_Post = async (req, res) => {
           Captions: req.body.caption
         }, {
           where: {
-            UserID: req.body.id
+            id: req.body.id
           }
         });
 
@@ -972,7 +899,7 @@ const get_imagePost_for_update = (req, res) => {
     .then(() => {
       Image_Post.findOne({
         where: {
-          UserID: req.body.id
+          id: req.body.id
         },
       })
         .then((rs) => {
@@ -995,7 +922,7 @@ const get_videoPost_for_update = (req, res) => {
     .then(() => {
       Video_Post.findOne({
         where: {
-          UserID: req.body.id
+          id: req.body.id
         },
       })
         .then((rs) => {
@@ -1046,7 +973,11 @@ const see_Native_profile = async (req, res) => {
     console.error("Error fetching media: ", error.message);
     res.status(500).send('Internal Server Error');
   }
+
+
 };
+
+
 
 
 
@@ -1067,12 +998,15 @@ module.exports = {
     allMedia,
     update_Profile,
     retrive_user_data,
+
     update_image_Post,
     update_video_Post,
     deleteImagePost,
     deleteVideoPost,
     get_imagePost_for_update,
     get_videoPost_for_update,
+
+
     My_native_all_blogs,
     see_other_user_profile,
     //logout,
