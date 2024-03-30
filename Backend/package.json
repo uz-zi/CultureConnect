@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@stripe/react-stripe-js": "^2.6.2",
+    "@stripe/stripe-js": "^3.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -17,6 +19,7 @@
     "routes": "^2.1.0",
     "sequelize": "^6.35.1",
     "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.4"
+    "socket.io-client": "^4.7.4",
+    "stripe": "^14.23.0"
   }
 }

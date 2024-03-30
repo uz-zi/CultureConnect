@@ -33,6 +33,10 @@ export default function Navbar() {
     navigate("/user/NativeSignup");
   };
 
+  const handleNativeSignInClick = () => {
+    navigate("/native/NativeSignin");
+  };
+
   return (
     <div style={{
       padding: '0px',
@@ -50,7 +54,16 @@ export default function Navbar() {
           <label id="my-logo">CultureConnect</label>
 
           <ul id='ul-design'>
-            <li id='li-design'><a id='my-nav-link' className="active" href="#">About Us</a></li>
+          <li id='li-design'>
+  <button 
+    id='my-nav-link' 
+    className="active" 
+    style={{background: 'none', border: 'none', padding: 0,  cursor: 'pointer'}}
+    onClick={handleNativeSignInClick}
+  >
+    Native?
+  </button>
+</li>
             <li id='li-design'><a id='my-nav-link' href="#">Our Team</a></li>
             <li id='li-design'><a id='my-nav-link' href="#">Services</a></li>
           </ul>

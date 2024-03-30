@@ -13,6 +13,9 @@ router.post("/addNotification", fuction.saveNotificationData)
 router.get("/getAllPaymentData", fuction.fetchAllPaymentData)
 router.post("/paymentConfirmation", fuction.paymentConfirmation)
 
+router.post("/loginAdmin", fuction.signInAdmin)
+router.post("/signup", fuction.Signup)
+
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');

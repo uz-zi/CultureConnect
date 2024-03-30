@@ -69,14 +69,16 @@ function signin() {
     const value = e.target.value;
     setEmail(value);
     if (!isLoginForm) { // Only check error for signup form
-      const emailRegex = /^(?:[a-zA-Z0-9._%+-]+@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
+      // const emailRegex = /^(?:[a-zA-Z0-9._%+-]+@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/;
+      const emailRegex = /^(?:(?:[a-zA-Z][a-zA-Z0-9._%+-]{4,})@gmail\.com|[a-z][0-9]{6}@cfd\.nu\.edu\.pk)$/
+
       setEmailError(!emailRegex.test(value));
     }
   };
 
   const handleFirstnameChange = (e) => {
     const value = e.target.value;
-    const nameRegex = /^[A-Za-z]{3,}[A-Za-z]*$/; // At least 3 characters, only letters
+    const nameRegex = /^[A-Za-z]{3,}[A-Za-z]*$/;
     setFirstname(value);
     setFirstnameError(!nameRegex.test(value));
   };
@@ -84,13 +86,13 @@ function signin() {
   const handleLastnameChange = (e) => {
     const value = e.target.value;
     setLastname(value);
-    setLastnameError(!value || value.length < 3); // Assuming you want at least 3 characters
+    setLastnameError(!value || value.length < 3);
   };
 
   const handleNicknameChange = (e) => {
     const value = e.target.value;
     setName(value);
-    setNicknameError(!value || value.length < 3); // Assuming you want at least 3 characters
+    setNicknameError(!value || value.length < 3); 
   };
 
   const handleSignup = async () => {

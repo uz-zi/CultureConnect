@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import pic1 from "../../assets/grey.jpeg";
 import axios from '../../axios';
+import { useNavigate } from "react-router-dom";
 
 export default function Adspage() {
   const [profilePic, setProfilePic] = useState(pic1);
@@ -9,6 +10,7 @@ export default function Adspage() {
   const [adTitle, setAdTitle] = useState("");
   const [formError, setFormError] = useState("");
   const [fileType, setFileType] = useState("image");
+  const navigate = useNavigate();
 
   const displaySelectedImage = (event) => {
     const fileInput = event.target;
@@ -64,6 +66,7 @@ export default function Adspage() {
       })
       .then(response => {
         console.log('Ad added successfully:', response.data);
+        
         // Handle success response, maybe clear form or show a success message
       })
       .catch(error => {
@@ -71,6 +74,7 @@ export default function Adspage() {
         // Handle error, show error message to the user
       });
     }
+    navigate("/adminfeedback")
   };
 
   return (

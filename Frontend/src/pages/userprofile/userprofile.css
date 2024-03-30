@@ -887,4 +887,9 @@
     margin: 0 auto;
   }
   /* Footer finished */
+
+  .comments-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
   

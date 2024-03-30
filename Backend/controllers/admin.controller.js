@@ -20,6 +20,7 @@ const Notification = require("../models/notification.model")
 const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
 const Payment = require("../models/Payment.model")
 const Chatbox = require("../models/chatbox.model");
+const Admin = require("../models/admin.model")
 
 const fetch_all_reports = async (req, res) => {
   try {
@@ -446,6 +447,72 @@ const paymentConfirmation = async (req, res) => {
 
 
 
+const signInAdmin = async (req, res) => {
+
+  
+  try {
+    
+    await sequelize.sync();
+
+    const pass = req.body.pass;
+  console.log("-------", pass)
+
+    const admin = await Admin.findOne({
+      where: {
+        Password: req.body.pass,
+        Email: req.body.email
+      }
+    });
+
+    
+
+    if (!admin) {
+      console.error("Invalid Credentials!");
+      res.status(401).send("Invalid Credentials");
+    } else {
+      // Assuming admin also has an is_Online flag or similar
+      admin.is_Online = true;
+      await admin.save();
+
+      // Generate a token for the admin. Note that the 'role' is now 'admin'
+      const token = jwtToken.sign({ role: "admin" }, 'dfghjk');
+
+      // Fetching admin-specific info, assuming Admin model has a different structure
+      const admin_ID = await Admin.findOne({
+        attributes: ['AdminID', 'role'], // Adjust attribute names as necessary
+        where: {
+          Email: req.body.email
+        }
+      });
+
+      console.log(admin);
+
+      res.status(200).send({
+        admin_ID,
+        roles: token.role,
+        accessToken: token
+      });
+
+      res.send("admin loged in")
+    }
+  } catch (error) {
+    console.error("Failed to sign in token not created: ", error);
+    res.status(500).send(error.message);
+  }
+};
+
+
+const Signup = async(req, res) =>{
+
+  const admin = await Admin.create({
+    Email: req.body.email,
+    Password: req.body.pass
+  });
+
+  console.log("signuped--in")
+}
+
+
 
 module.exports = {
   fetch_all_reports,
@@ -457,6 +524,8 @@ module.exports = {
   saveNotificationData,
   fetchAllNotifications,
   fetchAllPaymentData,
-  paymentConfirmation
+  paymentConfirmation,
+  Signup,
+  signInAdmin
   
 };

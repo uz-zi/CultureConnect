@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../axios';
+import { useNavigate } from "react-router-dom";
 
 export default function AddNotification() {
     
@@ -18,6 +19,8 @@ export default function AddNotification() {
     const [dateError, setDateError] = useState('');
     const [timeError, setTimeError] = useState('');
     const [addressError, setAddressError] = useState('');
+
+    const navigate = useNavigate();
 
     
 
@@ -115,6 +118,8 @@ export default function AddNotification() {
                 const response = await axios.post('/admin/addNotification', payload);
                 
                 alert('Form submitted successfully!');
+                navigate("/adminfeedback")
+                
                 // Optionally reset form state here
             } catch (error) {
                 console.error('Error:', error.response ? error.response.data : error);

@@ -12,7 +12,7 @@ function Protected({ component: Component,allowableuser }) {
     const token = localStorage.getItem('user');
 
     if (!token) {
-      navigate('/user/signin');
+      navigate('/Landing');
     }
 
     try {
@@ -26,7 +26,7 @@ function Protected({ component: Component,allowableuser }) {
       }
     } catch (error) {
       console.error('Error decoding token:', error);
-      navigate('/user/Landing');
+      navigate('/Landing');
     }
   }, [navigate]);
 

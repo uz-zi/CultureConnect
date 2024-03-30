@@ -21,7 +21,7 @@ export default function Chatbot() {
       setIsLoading(true); // Set loading state to true while waiting for response
 
       const response = await axios.post('/user/gpt', { promptinput: newMessage });
-      const { response: botResponse, validationResponse } = response.data;
+      const { response: botResponse } = response.data;
 
       if (response.status === 200) {
         // Display bot's response in chat
@@ -32,7 +32,7 @@ export default function Chatbot() {
         let errorMessage = '';
         switch (response.status) {
           case 400:
-            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: ${validationResponse}`}])  ;
+            setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Sorry, I can't answer this. I can only answer queries related to Pakistani culture, festivals, and places. Validation Response: `}])  ;
             break;
           case 401:
             setMessages(prevMessages => [...prevMessages, {role: 'bot', content: `Kindly please reenter your query`}])  ;
@@ -84,6 +84,7 @@ export default function Chatbot() {
           ref={chatContainerRef}
           className="flex-grow overflow-y-auto max-h-96 mb-4 py-4 container"
         >
+          <div>Somtimes Our AI bot may not be able to answer your query kindly be sepecific and re enter your query</div>
           <div className="flex flex-col gap-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
