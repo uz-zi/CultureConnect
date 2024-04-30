@@ -5,7 +5,7 @@ const sendVerificationEmail = async (email, verificationCode) => {
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",
-            pass: 'vloo cvlm jbqk hwhk'
+            pass: 'bbsb bnqm buon bgxi'
     }
     });
 
@@ -24,7 +24,7 @@ const report_confirm_email = async (email, verificationCode) => {
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",
-            pass: 'vloo cvlm jbqk hwhk'
+            pass: 'bbsb bnqm buon bgxi'
     }
     });
 
@@ -43,7 +43,7 @@ const email_to_reported_id_user= async (email, name, date, posttype, postcategor
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",
-            pass: 'vloo cvlm jbqk hwhk'
+            pass: 'bbsb bnqm buon bgxi'
     }
     });
 
@@ -62,7 +62,7 @@ const update_of_reported_post = async (reporter_email,  Name,  posttype, date, r
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",
-            pass: 'vloo cvlm jbqk hwhk'
+            pass: 'bbsb bnqm buon bgxi'
     }
     });
 
@@ -86,7 +86,7 @@ const PaymentConfirmation = async () => {
         service: "gmail",
         auth: {
             user: "f201114@cfd.nu.edu.pk",
-            pass: 'vloo cvlm jbqk hwhk'
+            pass: 'bbsb bnqm buon bgxi'
     }
     });
 

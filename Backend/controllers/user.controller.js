@@ -1030,64 +1030,6 @@ const Payment_from_user = async (req, res) => {
   }
 };
 
-// const Payment_via_card = async (req, res) => {
-//   try {
-//     const newPayment = await Card_payment.create({
-//       // UserID: req.body.UserID,
-//       // ChatID: req.body.ChatID,
-//       // Email: req.body.Email,
-//       Amount: req.body.Amount,
-//     });
-//     console.log("Crad Payment record created successfully!");
-//     res.send({
-//       message: "Card Payment record created successfully!",
-//       payment: newPayment,
-//     });
-//   } catch {
-//     console.error("Failed to create payment record: ", error);
-//     res.status(500).send(error.message);
-//   }
-// };
-
-
-
-
-// const Payment_via_card = async (req, res) => {
-//   try {
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount: req.body.amount * 100, 
-//       currency: "usd", 
-//       description: "Payment via card",
-//     });
-
-//     // Record the payment in your database
-//     const newPayment = await Card_payment.create({
-//       // userID: req.body.userID,
-//       // chatID: req.body.chatID,
-//       // email: req.body.email,
-//       amount: req.body.amount,
-//       // Add other fields as required
-//     });
-
-//     console.log("Card Payment record created successfully!");
-//     res.status(200).json({
-//       message: "Card Payment record created successfully!",
-//       payment: newPayment,
-//       clientSecret: paymentIntent.client_secret, 
-//     });
-//   } catch (error) {
-//     console.error("Failed to create payment record: ", error);
-//     res.status(500).send(error.message);
-//   }
-// };
-
-
-
-
-
-
-
-
 //----------------------------------------------comments
 
 const add_comment = async (req, res) => {
@@ -1214,6 +1156,121 @@ const chatgpt = async (req, res) => {
   }
 };
 
+
+
+
+// Chat controller to start a new chat session or retrieve an existing one
+const startOrRetrieveChat = async (req, res) => {
+  const { senderId, receiverId } = req.body;
+
+  try {
+    // Check if there's already a chat between these two users
+    let chat = await Chatbox.findOne({
+      where: {
+        [Op.or]: [
+          { sender_id: senderId, Receiver_Id: receiverId },
+          { sender_id: receiverId, Receiver_Id: senderId }
+        ]
+      }
+    });
+
+    // If a chat does not exist, create a new one
+    if (!chat) {
+      chat = await Chatbox.create({
+        sender_id: senderId,
+        Receiver_Id: receiverId,
+        message: ""  // Starting an empty message string, adjust as needed
+      });
+      res.status(201).send({ message: "New chat session started", chatId: chat.id });
+    } else {
+      res.status(200).send({ message: "Chat session retrieved", chatId: chat.id });
+    }
+  } catch (error) {
+    console.error("Failed to start or retrieve chat:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
+
+// Function to send a message in a chat
+const sendMessage = async (req, res) => {
+  const { senderId, receiverId, message } = req.body;
+
+  try {
+    // Find or create a chat session between users
+    let chat = await Chatbox.findOrCreate({
+      where: {
+        [Op.or]: [
+          { sender_id: senderId, Receiver_Id: receiverId },
+          { sender_id: receiverId, Receiver_Id: senderId }
+        ]
+      },
+      defaults: { // Set defaults if creating a new chat session
+        sender_id: senderId,
+        Receiver_Id: receiverId,
+        message: message  // Initialize with the first message
+      }
+    });
+
+    // If chat already exists and not just created, update the message
+    if (!chat[1]) {
+      chat[0].message = message;
+      await chat[0].save();
+    }
+
+    // Notify the sender that the message was sent successfully
+    res.status(200).send({ success: true, message: "Message sent successfully" });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+// Function to receive messages from a chat
+const receiveMessage = async (req, res) => {
+  const { chatId } = req.params;
+
+  try {
+    const chat = await Chatbox.findByPk(chatId);
+
+    if (!chat) {
+      return res.status(404).send({ message: "Chat not found" });
+    }
+
+    res.status(200).send({ message: chat.message });
+  } catch (error) {
+    console.error("Error retrieving message:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+const chatHistory = async (req, res) => {
+  const { userId } = req.params;
+  const senderId = req.query.sender_id;
+  console.log(`Fetching chat history for: senderId=${senderId}, userId=${userId}`); // Debug output
+
+  try {
+    const messages = await Chatbox.findAll({
+      where: {
+        [Op.or]: [
+          { sender_id: senderId, Receiver_Id: userId },
+          { sender_id: userId, Receiver_Id: senderId }
+        ]
+      },
+      order: [['createdAt', 'ASC']]
+    });
+    res.json(messages);
+  } catch (error) {
+    console.error("Error retrieving chat history:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
+
+
+
 module.exports = {
   signInUser,
   signUpUser,
@@ -1249,5 +1306,11 @@ module.exports = {
   Payment_from_user,
   add_comment,
   fetch_comment,
-  Payment_via_card
+  Payment_via_card,
+
+
+  startOrRetrieveChat,
+  sendMessage,
+  receiveMessage,
+  chatHistory
 };
