@@ -49,7 +49,10 @@ router.get('/fetch_all_comments', fuction.fetch_comment)
 router.post("/payment_with_card", fuction.Payment_via_card)
 
 
-
+router.post("/start_chat", fuction.startOrRetrieveChat);
+router.post("/send_message", fuction.sendMessage);
+router.get("/receive_message", fuction.receiveMessage);
+router.get("/chat_history/:userId", fuction.chatHistory);
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');

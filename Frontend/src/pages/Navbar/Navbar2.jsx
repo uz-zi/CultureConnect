@@ -138,7 +138,7 @@ export default function Navbar2() {
                 Services
               </a>
             </li>
-            <li class="li-design1">
+            {/* <li class="li-design1">
               <a
                 class="my-nav-link1"
                 href="#"
@@ -146,7 +146,7 @@ export default function Navbar2() {
               >
                 Feedback
               </a>
-            </li>
+            </li> */}
             {user.roles === "native" ? (
               <li className="li-design1">
                 <a
