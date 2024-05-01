@@ -146,40 +146,42 @@ const check_chat_exist_or_not = async (req, res) => {
 
 const add_chats = async (req, res) => {
   try {
-    await sequelize.sync();
-
     const senderId = req.query.sender_id;
 
-    const userId = await Chatbox.findAll({
-      attributes: ["Receiver_Id"],
+    // Fetch all distinct user IDs that this user has had a chat with
+    const chats = await Chatbox.findAll({
       where: {
-        sender_id: senderId,
+        [Op.or]: [{ sender_id: senderId }, { Receiver_Id: senderId }]
       },
+      group: ['sender_id', 'Receiver_Id'],
+      attributes: ['sender_id', 'Receiver_Id'],
+      raw: true
     });
-    console.log("-------------------------------", userId);
-    const receiverIds = [...new Set(userId.map((entry) => entry.Receiver_Id))];
 
-    // Fetch user details for all receiver IDs
+    // Extract user IDs excluding the current user
+    const userIds = chats.reduce((acc, chat) => {
+      if (chat.sender_id !== senderId && !acc.includes(chat.sender_id)) {
+        acc.push(chat.sender_id);
+      }
+      if (chat.Receiver_Id !== senderId && !acc.includes(chat.Receiver_Id)) {
+        acc.push(chat.Receiver_Id);
+      }
+      return acc;
+    }, []);
+
+    // Fetch user details for all connected user IDs
     const users = await User.findAll({
-      where: { UserID: { [Op.in]: receiverIds } },
-      attributes: ["UserID", "Name", "Profile_pic"],
+      where: { UserID: { [Op.in]: userIds } },
+      attributes: ['UserID', 'Name', 'Profile_pic'],
     });
 
-    const previousChats = await Chatbox.findAll({
-      where: {
-        [Op.or]: [{ sender_id: senderId }],
-      },
-      order: [["createdAt", "ASC"]],
-    });
-
-    console.log("User photo:", users);
-
-    res.status(200).send({ users, previousChats });
+    res.status(200).send({ users });
   } catch (error) {
     console.error("Error in operation: ", error.message);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 const allusers = async (req, res) => {
   try {
@@ -1248,7 +1250,6 @@ const receiveMessage = async (req, res) => {
 const chatHistory = async (req, res) => {
   const { userId } = req.params;
   const senderId = req.query.sender_id;
-  console.log(`Fetching chat history for: senderId=${senderId}, userId=${userId}`); // Debug output
 
   try {
     const messages = await Chatbox.findAll({
@@ -1268,6 +1269,24 @@ const chatHistory = async (req, res) => {
 };
 
 
+const fetchAllChatsForUser = async (req, res) => {
+  const { userId } = req.params; // Assuming userId is passed as a parameter
+
+  try {
+    const chats = await Chatbox.findAll({
+      where: {
+        [Op.or]: [{ sender_id: userId }, { Receiver_Id: userId }]
+      },
+      order: [['createdAt', 'ASC']]
+    });
+
+    // You might want to fetch user details for each chat partner here if necessary
+    res.json(chats);
+  } catch (error) {
+    console.error("Error retrieving chats for user:", error);
+    res.status(500).send("Internal server error");
+  }
+};
 
 
 
@@ -1312,5 +1331,6 @@ module.exports = {
   startOrRetrieveChat,
   sendMessage,
   receiveMessage,
-  chatHistory
+  chatHistory,
+  fetchAllChatsForUser
 };

@@ -58,6 +58,7 @@ const nativeRoute = require('./routes/native.route');
 const Chatbox = require('./models/chatbox.model'); // Ensure this points to your Chatbox model file
 require('dotenv').config();
 const { deleteExpiredAds } = require('./controllers/scheduledTasks');
+const { Op } = require("sequelize");
 
 // Socket.io setup
 const io = socketIo(server, {
@@ -102,9 +103,25 @@ app.get("*", (req, res) => {
 
 // Socket.IO handling for chat functionalities
 io.on('connection', (socket) => {
-  socket.on('join_room', (roomId) => {
+  socket.on('join_room', async (roomId) => {
     socket.join(roomId);
     console.log(`User joined room: ${roomId}`);
+
+    // Fetch chat history and emit to the joined room
+    try {
+      const messages = await Chatbox.findAll({
+        where: {
+          [Op.or]: [
+            { sender_id: roomId },
+            { Receiver_Id: roomId }
+          ]
+        },
+        order: [['createdAt', 'ASC']]
+      });
+      io.to(roomId).emit('load_messages', messages);
+    } catch (error) {
+      console.error("Error loading messages for room:", error);
+    }
   });
   
   socket.on('leave_room', (roomId) => {
