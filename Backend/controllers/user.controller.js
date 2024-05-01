@@ -169,13 +169,33 @@ const add_chats = async (req, res) => {
       return acc;
     }, []);
 
-    // Fetch user details for all connected user IDs
-    const users = await User.findAll({
-      where: { UserID: { [Op.in]: userIds } },
-      attributes: ['UserID', 'Name', 'Profile_pic'],
-    });
+   // Fetch user details for all connected user IDs
+   const users = await User.findAll({
+    where: { UserID: { [Op.in]: userIds } },
+    attributes: ['UserID', 'Name', 'Profile_pic'],
+  });
 
-    res.status(200).send({ users });
+  // Fetch native details for all connected user IDs
+  const natives = await Native.findAll({
+    where: { UserID: { [Op.in]: userIds } },
+    attributes: ['UserID', 'Name', 'Profile_pic'],
+  });
+
+  // Combine user and native data
+  const combinedData = users.map(user => ({
+    ...user.toJSON(),
+    isNative: false,
+  }));
+
+  natives.forEach(native => {
+    combinedData.push({
+      ...native.toJSON(),
+      isNative: true,
+    });
+  });
+
+  res.status(200).send({ users: combinedData });
+  
   } catch (error) {
     console.error("Error in operation: ", error.message);
     res.status(500).send("Internal Server Error");
