@@ -7,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"
 import axios from '../../axios';
 
-
-
 export default function Navbar2() {
 
   const navigate = useNavigate();
