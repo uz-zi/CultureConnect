@@ -53,6 +53,7 @@ router.post("/start_chat", fuction.startOrRetrieveChat);
 router.post("/send_message", fuction.sendMessage);
 router.get("/receive_message", fuction.receiveMessage);
 router.get("/chat_history/:userId", fuction.chatHistory);
+router.get("/user/chats/:userId", fuction.fetchAllChatsForUser);
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');

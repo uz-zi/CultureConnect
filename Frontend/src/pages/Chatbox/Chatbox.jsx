@@ -18,7 +18,7 @@ export default function Chatbox() {
   useEffect(() => {
     const newSocket = io(baseURL);
     setSocket(newSocket);
-
+  
     newSocket.on('receive_message', (message) => {
       setMessages(prev => ({
         ...prev,
@@ -26,11 +26,25 @@ export default function Chatbox() {
         [message.senderId]: [...(prev[message.senderId] || []), message]
       }));
     });
-
+  
+    newSocket.on('load_messages', (messages) => {
+      // Assuming messages are an array of message objects
+      const updatedMessages = messages.reduce((acc, message) => {
+        const { sender_id, Receiver_Id } = message;
+        return {
+          ...acc,
+          [sender_id]: [...(acc[sender_id] || []), message],
+          [Receiver_Id]: [...(acc[Receiver_Id] || []), message]
+        };
+      }, {});
+      setMessages(prev => ({ ...prev, ...updatedMessages }));
+    });
+  
     newSocket.emit('join_room', senderId);
-
+  
     return () => newSocket.close();
   }, [baseURL, senderId]);
+  
 
   useEffect(() => {
     async function fetchUsers() {
@@ -38,39 +52,51 @@ export default function Chatbox() {
         const response = await axios.get("/user/chatbox", { params: { sender_id: senderId } });
         if (response.data.users.length > 0) {
           setUsers(response.data.users);
-          setActiveChat(response.data.users[0].UserID);  // Set the first user as active chat
-          setMessages({
-            ...messages,
-            [response.data.users[0].UserID]: response.data.previousChats || []
-          });
+          setActiveChat(response.data.users[0].UserID);
         }
       } catch (error) {
         console.error("Error fetching users data:", error);
       }
     }
-
+  
     fetchUsers();
   }, [senderId]);
 
   const handleSelectUser = (userId) => {
     setActiveChat(userId);
-    if (!messages[userId]) {
-      // Optionally fetch the chat history if not already loaded
-      fetchChatHistory(userId);
-    }
+    fetchChatHistory(userId);
   };
 
+  useEffect(() => {
+    if (users.length > 0) {
+      setActiveChat(users[0].UserID);
+    }
+  }, [users]);
+  
+  useEffect(() => {
+    if (activeChat) {
+      fetchChatHistory(activeChat);
+    }
+  }, [activeChat]);
+  
   const fetchChatHistory = async (userId) => {
     try {
       const { data } = await axios.get(`${baseURL}user/chat_history/${userId}`, {
         params: { sender_id: senderId }
       });
-      setMessages(prev => ({ ...prev, [userId]: data }));
+      setMessages(prev => ({
+        ...prev,
+        [userId]: data.map(msg => ({
+          senderId: msg.sender_id,
+          receiverId: msg.Receiver_Id,
+          message: msg.message,
+          createdAt: msg.createdAt
+        }))
+      }));
     } catch (error) {
       console.error("Failed to fetch chat history:", error);
     }
   };
-  
 
   const handleSendMessage = () => {
     if (!currentMessage.trim() || !activeChat) return;
@@ -86,6 +112,8 @@ export default function Chatbox() {
       [activeChat]: [...(prev[activeChat] || []), messageData]
     }));
   };
+
+  const activeUser = users.find(user => user.UserID === activeChat);
 
   return (
     <div className="body">
@@ -132,7 +160,7 @@ export default function Chatbox() {
                 <div className="imgtext">
                   <div className="userimg">
                     <img
-                      src={users.find(user => user.UserID === activeChat)?.Profile_pic || defaultProfilePic}
+                      src={activeUser.Profile_pic ? `${baseURL}${activeUser.Profile_pic}` : defaultProfilePic}
                       className="cover"
                       alt="User1"
                       style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
