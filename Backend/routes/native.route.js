@@ -34,6 +34,7 @@ router.get("/see_native_profile", fuction.see_Native_profile)
 router.get("/my_blogs", fuction.My_native_all_blogs)
 
 router.get('/see_other_user_profile', fuction.see_other_user_profile)
+router.get('/voicecommandtogetblogs', fuction.searchBlogsByVoiceCommand)
 
 
 // //--------for_social_post--------------
