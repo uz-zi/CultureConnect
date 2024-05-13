@@ -132,7 +132,7 @@ export default function UserFeed() {
             <div className="td" id="logo">
               <a
                 className="navbar-brand px-lg-5 px-sm-2 d-flex align-items-center"
-                href="#"
+                
               >
                 <img style={{ width: 40 }} src={logo} alt="" />
               </a>
