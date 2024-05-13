@@ -111,6 +111,57 @@ const allSocialMediaPosts = async (req, res) => {
   }
 };
 
+
+
+const searchSocialMediaPosts = async (req, res) => {
+  try {
+    const { query } = req.query;
+    await sequelize.sync();
+
+    const images = await Image_Post.findAll({
+      where: {
+        [Op.or]: [
+          { Caption: { [Op.like]: `%${query}%` } },
+        ]
+      },
+      include: [{
+        model: User,
+        as: 'UserDetails',
+        attributes: ['UserID', 'Name', 'Profile_pic']
+      }]
+    });
+
+    const videos = await Video_Post.findAll({
+      where: {
+        [Op.or]: [
+          { Caption: { [Op.like]: `%${query}%` } },
+        ]
+      },
+      include: [{
+        model: User,
+        as: 'UserDetails',
+        attributes: ['UserID', 'Name', 'Profile_pic']
+      }]
+    });
+
+    const combinedMedia = [...images, ...videos];
+
+    if (!combinedMedia.length) {
+      console.log("No matching media found.");
+      return res.status(404).send("No matching media found.");
+    }
+
+    combinedMedia.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    console.log("Search results fetched and sorted successfully.");
+    res.status(200).send({ combinedMedia });
+  } catch (error) {
+    console.error("Error in search: ", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
 const model_name = "gpt-4";
 const model2_name = "gpt-4";
 
@@ -1310,6 +1361,32 @@ const fetchAllChatsForUser = async (req, res) => {
 
 
 
+const handleIceCandidate = (req, res) => {
+  const { senderId, receiverId, candidate } = req.body;
+  // Broadcast the ICE candidate to the other user
+  io.to(`${receiverId}-${senderId}`).emit('ice_candidate', { candidate });
+  res.status(200).send({ success: true });
+};
+
+// Function to handle WebRTC offer messages
+const handleOffer = (req, res) => {
+  const { senderId, receiverId, offer } = req.body;
+  // Broadcast the offer to the other user
+  io.to(`${receiverId}-${senderId}`).emit('offer', { offer });
+  res.status(200).send({ success: true });
+};
+
+// Function to handle WebRTC answer messages
+const handleAnswer = (req, res) => {
+  const { senderId, receiverId, answer } = req.body;
+  // Broadcast the answer to the other user
+  io.to(`${receiverId}-${senderId}`).emit('answer', { answer });
+  res.status(200).send({ success: true });
+};
+
+
+
+
 module.exports = {
   signInUser,
   signUpUser,
@@ -1352,5 +1429,12 @@ module.exports = {
   sendMessage,
   receiveMessage,
   chatHistory,
-  fetchAllChatsForUser
+  fetchAllChatsForUser,
+
+
+
+  handleIceCandidate,
+  handleOffer,
+  handleAnswer,
+  searchSocialMediaPosts
 };

@@ -45,9 +45,6 @@ export default function Home() {
         navigate('/user/Feedback', { state: { postId, postType } });
     };
 
-
-
-
     const [listening, setListening] = useState(false);
     const recognition = new window.webkitSpeechRecognition();
 
